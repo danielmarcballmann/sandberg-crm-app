@@ -1084,9 +1084,6 @@ function buildMatches(){
       const overrideKey=b.Id+"::"+l.Id;
       if(matchStateOverride[overrideKey])state=matchStateOverride[overrideKey];
 
-      // Apply local-only drag-drop override (non-persistent, resets on reload)
-      const overrideKey=b.Id+"::"+l.Id;
-      if(matchStateOverride[overrideKey])state=matchStateOverride[overrideKey];
       return{l,score,fit,gaps,fitLabel,state,sigs,buyerViews,offers,latestReaction};
     });
 

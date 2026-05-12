@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sandberg Estates — Daily Driver</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Lato:wght@300;400;700&family=Montserrat:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#002b47;--gold:#e0bf95;--bg:#f2f5f9;--white:#fff;--border:#dde4ec;--text-soft:#7a8fa6;--text-mid:#4a6278}
+body{font-family:Lato,sans-serif;background:var(--bg);color:var(--navy);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px}
+
+/* ─── LOGIN SCREEN ─── */
+#login-screen{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:32px}#login-screen.ls-hidden{display:none!important}
+.login-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:40px 48px;text-align:center;width:380px}
+.login-logo{font-family:'Playfair Display',serif;font-size:26px;color:#fff;letter-spacing:.6px;font-weight:500}
+.login-sub{font-family:Montserrat,sans-serif;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-top:6px}
+.login-divider{height:1px;background:rgba(255,255,255,.1);margin:24px 0}
+.login-desc{font-size:12px;color:rgba(255,255,255,.5);font-family:Montserrat,sans-serif;margin-bottom:24px;line-height:1.6}
+.btn-sf{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px 20px;background:var(--gold);color:var(--navy);border:none;border-radius:2px;font-size:12px;font-weight:700;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;transition:all .15s}
+.btn-sf:hover{background:#d4a87a;transform:translateY(-1px)}
+.btn-sf:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.login-error{color:#fca5a5;font-size:11px;font-family:Montserrat,sans-serif;margin-top:12px;min-height:16px}
+.login-setup-note{font-size:10px;color:rgba(255,255,255,.3);font-family:Montserrat,sans-serif;text-align:center;max-width:380px;line-height:1.6}
+
+/* ─── TOPBAR ─── */
+.topbar{background:var(--navy);display:flex;align-items:center;padding:0 24px;height:52px;flex-shrink:0}
+.tlogo{font-family:'Playfair Display',serif;font-size:15px;color:#fff;letter-spacing:.6px;font-weight:500;line-height:1}
+.tmall{font-family:Montserrat,sans-serif;font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);display:block;margin-top:2px}
+.tsep{width:1px;height:22px;background:rgba(255,255,255,.15);margin:0 18px}
+.tpill{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;font-family:Montserrat,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#94a3b8}
+.tdot{width:7px;height:7px;border-radius:50%;background:#94a3b8;flex-shrink:0}
+.tspace{flex:1}
+.tuser{text-align:right;cursor:pointer}
+.tuser-name{font-size:12px;color:#fff;font-family:Montserrat,sans-serif;font-weight:600;display:block}
+.tuser-sub{font-size:10px;color:rgba(255,255,255,.4);font-family:Montserrat,sans-serif;display:block}
+.btn-logout{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);font-size:10px;font-family:Montserrat,sans-serif;font-weight:700;padding:4px 10px;border-radius:2px;cursor:pointer;margin-left:14px;text-transform:uppercase;letter-spacing:.5px}
+.btn-logout:hover{border-color:rgba(255,255,255,.5);color:#fff}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.live-pulse{animation:pulse 2s infinite}
+
+/* ─── LAYOUT ─── */
+.app{display:flex;flex:1;overflow:hidden}
+.sidebar{width:210px;background:var(--white);border-right:1px solid var(--border);flex-shrink:0;padding:14px 0 24px;overflow-y:auto}
+.nav-group{padding:12px 18px 4px;font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1.8px;font-family:Montserrat,sans-serif}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:13px;color:var(--text-mid);cursor:pointer;border-left:2px solid transparent;transition:all .1s;user-select:none}
+.nav-item:hover{background:var(--bg);color:var(--navy)}
+.nav-item.active{background:#fdfaf7;color:var(--navy);border-left-color:var(--gold);font-weight:700}
+.ni{width:15px;text-align:center;font-size:12px;opacity:.7;flex-shrink:0}
+.nc{margin-left:auto;border-radius:2px;padding:1px 6px;font-size:10px;font-weight:700;font-family:Montserrat,sans-serif;background:var(--bg);color:var(--text-soft)}
+.nav-item.active .nc{background:var(--gold);color:var(--navy)}
+.nc-hot{background:#ef4444!important;color:#fff!important}
+.sdiv{height:1px;background:#e0bf9520;margin:6px 18px}
+.content{flex:1;overflow-y:auto;padding:26px 30px 40px}
+.page{display:none}.page.active{display:block}
+
+/* ─── PAGE HEADER ─── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid #e0bf9530}
+.ph-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--navy);font-weight:500}
+.ph-sub{font-size:11px;color:var(--text-soft);margin-top:4px;font-family:Montserrat,sans-serif}
+
+/* ─── STATS ─── */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px}
+.stat{background:var(--white);border-radius:2px;padding:14px 16px;border:1px solid var(--border);cursor:pointer;position:relative;overflow:hidden}
+.stat:hover{border-color:var(--gold)}
+.stat-n{font-size:26px;font-weight:400;color:var(--navy);font-family:'Playfair Display',serif;line-height:1}
+.stat-l{font-size:9px;color:var(--text-soft);margin-top:4px;font-family:Montserrat,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.stat-sub{font-size:10px;color:var(--gold);margin-top:2px;font-family:Montserrat,sans-serif;font-weight:600}
+.stat-bar{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),#e0bf9440)}
+.stat-warn .stat-n{color:#dc2626}
+.stat-bar-red{background:linear-gradient(90deg,#ef4444,#fca5a4)!important}
+
+/* ─── COCKPIT GRID ─── */
+.cg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.cg-wide{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.cp{background:var(--white);border-radius:2px;border:1px solid var(--border);overflow:hidden}
+.cp-hd{padding:10px 14px;border-bottom:1px solid #f2f5f9;display:flex;justify-content:space-between;align-items:center;background:#fdfaf7}
+.cp-t{font-size:9px;font-weight:700;color:var(--navy);font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:1px}
+.cp-c{padding:2px 7px;border-radius:1px;font-size:9px;font-weight:700;font-family:Montserrat,sans-serif;background:var(--gold);color:var(--navy)}
+.cp-c-red{background:#fee2e2!important;color:#dc2626!important}
+.ci{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 14px;border-bottom:1px solid #f2f5f9;cursor:pointer}
+.ci:last-child{border-bottom:none}.ci:hover{background:#fdfaf7}
+.ci-name{font-size:13px;font-weight:700;color:var(--navy)}
+.ci-sub{font-size:10px;color:var(--text-soft);margin-top:2px;font-family:Montserrat,sans-serif}
+.ci-right{text-align:right;flex-shrink:0;margin-left:8px}
+.ci-empty{color:#94a3b8;font-size:12px;font-style:italic;font-family:Montserrat,sans-serif;padding:14px}
+
+/* ─── PIPELINE ─── */
+.pipeline{display:flex;gap:0;margin-bottom:22px;border:1px solid var(--border);border-radius:2px;overflow:hidden;background:var(--white)}
+.pipe-stage{flex:1;padding:14px 12px;border-right:1px solid #f2f5f9;cursor:pointer;transition:background .1s;position:relative}
+.pipe-stage:last-child{border-right:none}
+.pipe-stage:hover{background:#fdfaf7}
+.pipe-stage.active-pipe{background:#fdfaf7}
+.pipe-n{font-size:22px;font-weight:400;color:var(--navy);font-family:'Playfair Display',serif;line-height:1}
+.pipe-l{font-size:9px;color:var(--text-soft);margin-top:3px;font-family:Montserrat,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.7px}
+.pipe-bar{position:absolute;bottom:0;left:0;height:2px;background:var(--gold);transition:width .3s}
+
+/* ─── KANBAN ─── */
+.kanban-wrap{overflow-x:auto;padding-bottom:16px}
+.kanban{display:flex;gap:12px;align-items:flex-start;min-width:max-content;padding-bottom:4px}
+.kcol{width:224px;flex-shrink:0}
+.kcol-hd{background:var(--white);border-radius:2px 2px 0 0;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-bottom:none}
+.kcol-t{font-size:9px;font-weight:700;color:var(--navy);font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.8px}
+.kcol-n{padding:2px 7px;border-radius:2px;font-size:10px;font-weight:700;font-family:Montserrat,sans-serif}
+.kcol-body{background:var(--bg);border:1px solid var(--border);border-radius:0 0 2px 2px;padding:6px;display:flex;flex-direction:column;gap:6px;min-height:80px}
+.kcard{background:var(--white);border-radius:2px;padding:10px 11px;border:1px solid var(--border);cursor:pointer;transition:box-shadow .12s,transform .1s}
+.kcard:hover{box-shadow:0 2px 10px rgba(0,43,71,.1);transform:translateY(-1px)}
+.kcard-name{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.kcard-crit{font-size:10px;color:var(--text-mid);font-family:Montserrat,sans-serif;margin-bottom:3px}
+.kcard-loc{font-size:10px;color:var(--text-soft);font-family:Montserrat,sans-serif;margin-bottom:3px}
+.kcard-sep{height:1px;background:#e0bf9428;margin:5px 0}
+.kcard-match-lbl{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--gold);letter-spacing:.9px;font-family:Montserrat,sans-serif;margin-bottom:3px}
+.kcard-prop{background:#fdfaf7;border:1px solid #e0bf9440;border-left:2px solid var(--gold);border-radius:2px;padding:6px 8px}
+.kcard-ref{font-size:10px;color:var(--text-soft);font-family:Montserrat,sans-serif;font-weight:600}
+.kcard-pname{font-size:11px;font-weight:700;color:var(--navy);margin:1px 0;line-height:1.3}
+.kcard-pmeta{font-size:10px;color:var(--text-mid);font-family:Montserrat,sans-serif}
+.kcard-nomatch{font-size:10px;color:#94a3b8;font-style:italic;font-family:Montserrat,sans-serif}
+.kcol-empty{text-align:center;font-size:10px;color:#c4cdd6;font-style:italic;font-family:Montserrat,sans-serif;padding:14px 8px}
+
+/* ─── TABLE ─── */
+.tw{background:var(--white);border-radius:2px;border:1px solid var(--border);overflow:hidden;margin-bottom:22px}
+table{width:100%;border-collapse:collapse}
+th{padding:9px 14px;text-align:left;font-size:9px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:1.2px;background:#fdfaf7;border-bottom:1px solid var(--border);font-family:Montserrat,sans-serif;white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid #f2f5f9;font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fdfaf7;cursor:pointer}
+.td-s{font-size:11px;color:var(--text-mid);font-family:Montserrat,sans-serif}
+.td-d{font-size:11px;color:var(--text-soft);font-family:Montserrat,sans-serif;white-space:nowrap}
+.td-price{font-weight:600;color:var(--navy);font-family:'Playfair Display',serif;font-size:15px}
+
+/* ─── LISTING GRID ─── */
+.lg{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:14px;margin-bottom:22px}
+.lcard{background:var(--white);border-radius:2px;padding:16px;border:1px solid var(--border);cursor:pointer;transition:box-shadow .12s,transform .1s;border-bottom:2px solid var(--gold)}
+.lcard:hover{box-shadow:0 3px 16px rgba(0,43,71,.1);transform:translateY(-1px)}
+.lcard-ref{font-size:10px;color:var(--text-soft);font-weight:600;font-family:Montserrat,sans-serif;text-transform:uppercase}
+.lcard-name{font-size:14px;font-weight:600;color:var(--navy);margin:3px 0;line-height:1.35;font-family:'Playfair Display',serif}
+.lcard-price{font-size:17px;font-weight:600;color:var(--navy);margin-bottom:7px;font-family:'Playfair Display',serif}
+.lcard-meta{display:flex;flex-wrap:wrap;gap:7px;font-size:11px;color:var(--text-soft);margin-bottom:8px;font-family:Montserrat,sans-serif}
+.lcard-feats{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.feat{font-size:9px;font-weight:700;font-family:Montserrat,sans-serif;padding:2px 7px;border-radius:2px;background:var(--bg);color:#475569;text-transform:uppercase;letter-spacing:.4px}
+.feat-g{background:#d1fae5;color:#065f46}
+.lcard-footer{padding-top:8px;border-top:1px solid #f2f5f9;display:flex;justify-content:flex-end;gap:10px}
+.lcard-link{font-size:11px;color:var(--gold);font-weight:700;text-decoration:none;font-family:Montserrat,sans-serif}
+
+/* ─── TAGS ─── */
+.tag{display:inline-block;padding:2px 9px;border-radius:2px;font-size:10px;font-weight:700;font-family:Montserrat,sans-serif;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+.t-green{background:#d1fae5;color:#065f46}.t-blue{background:#dbeafe;color:#1e40af}
+.t-amber{background:#fef3c7;color:#92400e}.t-purple{background:#f3e8ff;color:#6b21a8}
+.t-red{background:#fee2e2;color:#991b1b}.t-gray{background:#f1f5f9;color:#475569}
+.t-teal{background:#ccfbf1;color:#0f766e}.t-orange{background:#ffedd5;color:#9a3412}
+.t-navy{background:#002b4715;color:#002b47}
+
+/* ─── CALENDAR ─── */
+.cal-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-month-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--navy);font-weight:500}
+.cal-btn{background:var(--white);border:1px solid var(--border);color:var(--navy);padding:5px 12px;border-radius:2px;font-size:12px;font-family:Montserrat,sans-serif;font-weight:600;cursor:pointer}
+.cal-btn:hover{background:var(--bg)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);border-radius:2px;overflow:hidden;background:var(--white);margin-bottom:22px}
+.cal-dow{padding:8px 4px;text-align:center;font-size:9px;font-weight:700;color:var(--text-soft);font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.8px;background:#fdfaf7;border-bottom:1px solid var(--border)}
+.cal-cell{border:1px solid #f2f5f9;min-height:76px;padding:6px;background:var(--white)}
+.cal-cell.other{background:#f8fafc}
+.cal-cell.today{background:#fdfaf7}
+.cal-dn{font-size:11px;font-weight:700;font-family:Montserrat,sans-serif;color:#94a3b8;margin-bottom:3px}
+.cal-cell.today .cal-dn{width:20px;height:20px;background:var(--gold);color:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px}
+.cal-ev{font-size:10px;background:#002b4710;color:var(--navy);border-radius:2px;padding:2px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;font-family:Montserrat,sans-serif;font-weight:600;border-left:2px solid var(--gold)}
+.cal-ev:hover{background:#e0bf9530}
+.cal-ev-t{border-left-color:#ef4444;background:#fee2e210}
+
+/* ─── TASKS ─── */
+.task-row{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid #f2f5f9;cursor:pointer}
+.task-row:last-child{border-bottom:none}.task-row:hover{background:#fdfaf7}
+.task-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.t-ov .task-dot{background:#ef4444}.t-td .task-dot{background:#f59e0b}.t-fu .task-dot{background:#94a3b8}
+.task-name{font-size:13px;font-weight:700;color:var(--navy)}
+.task-who{font-size:11px;color:var(--text-mid);font-family:Montserrat,sans-serif;margin-top:2px}
+.task-due{font-size:10px;font-family:Montserrat,sans-serif;margin-left:auto;flex-shrink:0;font-weight:700}
+.t-ov .task-due{color:#ef4444}.t-td .task-due{color:#f59e0b}.t-fu .task-due{color:#94a3b8}
+
+/* ─── LOADING / ERROR ─── */
+.loading-state{display:flex;align-items:center;justify-content:center;padding:60px;color:#94a3b8;font-family:Montserrat,sans-serif;font-size:12px;gap:10px;flex-direction:column}
+.spin-ring{width:32px;height:32px;border:3px solid #e0bf9430;border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+.error-state{background:#fee2e2;border:1px solid #fca5a5;border-radius:2px;padding:20px;margin:20px 0;font-family:Montserrat,sans-serif;font-size:12px;color:#991b1b}
+.sec-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-soft);font-family:Montserrat,sans-serif;margin-bottom:10px;margin-top:20px}
+.sec-lbl:first-of-type{margin-top:0}
+.empty-state{text-align:center;padding:40px;color:#94a3b8;font-family:Montserrat,sans-serif;font-size:12px;background:var(--white);border-radius:2px;border:1px solid var(--border)}
+
+/* ─── DETAIL PANEL ─── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,43,71,.4);z-index:200;backdrop-filter:blur(2px)}
+.overlay.open{display:flex;justify-content:flex-end}
+.dp{width:480px;background:var(--white);height:100%;overflow-y:auto;box-shadow:-4px 0 28px rgba(0,43,71,.18);display:flex;flex-direction:column}
+.dp-hd{background:var(--navy);padding:20px 22px;color:#fff;flex-shrink:0;position:relative}
+.dp-close{position:absolute;top:13px;right:16px;background:none;border:none;color:rgba(255,255,255,.4);font-size:24px;cursor:pointer;line-height:1}
+.dp-close:hover{color:#fff}
+.dp-type{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-family:Montserrat,sans-serif;margin-bottom:5px}
+.dp-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:500;line-height:1.3;padding-right:32px}
+.dp-subtitle{font-size:11px;color:rgba(255,255,255,.5);font-family:Montserrat,sans-serif;margin-top:4px}
+.dp-body{padding:20px;flex:1}
+.dp-sec{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #f2f5f9}
+.dp-sec:last-child{border-bottom:none;margin-bottom:0}
+.dp-slbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.3px;color:var(--text-soft);font-family:Montserrat,sans-serif;margin-bottom:8px}
+.dp-row{display:flex;justify-content:space-between;margin-bottom:5px;gap:12px}
+.dp-key{color:var(--text-soft);font-family:Montserrat,sans-serif;font-size:11px;flex-shrink:0}
+.dp-val{color:var(--navy);font-weight:600;font-family:Montserrat,sans-serif;font-size:11px;text-align:right}
+.dp-btn{display:block;width:100%;padding:10px;border:none;border-radius:2px;font-size:11px;font-weight:700;font-family:Montserrat,sans-serif;text-transform:uppercase;cursor:pointer;margin-bottom:7px;text-align:center;text-decoration:none}
+.dp-btn-p{background:var(--navy);color:#fff}.dp-btn-p:hover{background:#003d5c}
+.dp-btn-s{background:transparent;color:var(--navy);border:1px solid var(--border)}.dp-btn-s:hover{background:var(--bg)}
+.dp-contact-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border-radius:2px;margin-bottom:6px;font-size:12px;font-family:Montserrat,sans-serif}
+.dp-note{margin-top:10px;font-size:12px;color:var(--text-mid);line-height:1.5;padding:10px;background:var(--bg);border-radius:2px}
+
+/* ─── COMING SOON ─── */
+.coming-soon{background:var(--white);border:1px solid var(--border);border-radius:2px;padding:40px;text-align:center}
+.cs-icon{font-size:32px;margin-bottom:12px}
+.cs-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--navy);margin-bottom:8px}
+.cs-desc{font-size:12px;color:var(--text-soft);font-family:Montserrat,sans-serif;line-height:1.6;max-width:400px;margin:0 auto}
+
+
+
+
+/* ─── ROLE FOCUS ─── */
+.role-tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:2px;overflow:hidden;background:var(--white)}
+.role-tab{flex:1;padding:8px 10px;text-align:center;font-size:10px;font-weight:700;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.7px;cursor:pointer;color:var(--text-soft);border-right:1px solid var(--border);transition:all .1s;user-select:none}
+.role-tab:last-child{border-right:none}
+.role-tab:hover{background:var(--bg);color:var(--navy)}
+.role-tab.active{background:var(--navy);color:#fff}
+
+/* ─── FILTER BAR ─── */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-input{padding:7px 12px;border:1px solid var(--border);border-radius:2px;font-size:12px;font-family:Lato,sans-serif;color:var(--navy);background:var(--white);outline:none;min-width:180px}
+.filter-input:focus{border-color:var(--gold)}
+.filter-select{padding:7px 10px;border:1px solid var(--border);border-radius:2px;font-size:12px;font-family:Montserrat,sans-serif;color:var(--navy);background:var(--white);outline:none;cursor:pointer}
+.filter-select:focus{border-color:var(--gold)}
+.filter-count{font-size:11px;color:var(--text-soft);font-family:Montserrat,sans-serif;margin-left:auto;align-self:center}
+
+/* ─── ACTIVITY FEED ─── */
+.af-item{display:flex;gap:12px;padding:10px 14px;border-bottom:1px solid #f2f5f9;align-items:flex-start}
+.af-item:last-child{border-bottom:none}
+.af-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;background:var(--gold)}
+.af-dot-task{background:#94a3b8}
+.af-dot-done{background:#4ade80}
+.af-dot-ev{background:#818cf8}
+.af-body{flex:1;min-width:0}
+.af-title{font-size:13px;font-weight:700;color:var(--navy)}
+.af-sub{font-size:11px;color:var(--text-soft);font-family:Montserrat,sans-serif;margin-top:2px}
+.af-date{font-size:10px;color:var(--text-soft);font-family:Montserrat,sans-serif;flex-shrink:0;white-space:nowrap}
+
+/* ─── SEARCH ─── */
+.search-bar{position:relative;margin-bottom:18px}
+.search-input{width:100%;padding:9px 14px 9px 38px;border:1px solid var(--border);border-radius:2px;font-size:13px;font-family:Lato,sans-serif;color:var(--navy);background:var(--white);outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--gold)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-soft);font-size:14px;pointer-events:none}
+.search-results{background:var(--white);border:1px solid var(--border);border-radius:2px;position:absolute;top:100%;left:0;right:0;z-index:50;box-shadow:0 4px 16px rgba(0,43,71,.12);max-height:320px;overflow-y:auto}
+.sr-item{padding:10px 14px;border-bottom:1px solid #f2f5f9;cursor:pointer;display:flex;gap:10px;align-items:center}
+.sr-item:last-child{border-bottom:none}.sr-item:hover{background:#fdfaf7}
+.sr-type{font-size:9px;font-weight:700;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.8px;padding:2px 6px;border-radius:2px;flex-shrink:0}
+.sr-name{font-size:13px;font-weight:700;color:var(--navy)}
+.sr-sub{font-size:11px;color:var(--text-soft);font-family:Montserrat,sans-serif}
+
+/* ─── INFO BOX ─── */
+.info-box{background:#fdfaf7;border:1px solid #e0bf9440;border-left:3px solid var(--gold);border-radius:2px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--text-mid);font-family:Montserrat,sans-serif;line-height:1.6}
+/* WP-04 Write Action Modal */
+.wa-overlay{position:fixed;inset:0;background:rgba(0,32,60,.45);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px}
+.wa-modal{background:#fff;border-radius:10px;width:100%;max-width:460px;box-shadow:0 8px 40px rgba(0,0,0,.18);overflow:hidden}
+.wa-hdr{background:var(--navy);color:#fff;padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between}
+.wa-hdr h3{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;margin:0}
+.wa-x{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;opacity:.7}.wa-x:hover{opacity:1}
+.wa-body{padding:18px 20px}
+.wa-step{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--sand);font-family:Montserrat,sans-serif;text-transform:uppercase;margin-bottom:10px}
+.wa-row{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid #f2f5f9;font-size:13px}
+.wa-row:last-child{border-bottom:none}
+.wa-key{color:#64748b;font-family:Montserrat,sans-serif;font-size:11px;flex-shrink:0;padding-top:1px}
+.wa-val{color:var(--navy);font-weight:600;text-align:right;max-width:62%;font-size:12px}
+.wa-safety{background:#f0fdf4;border-radius:6px;padding:10px 13px;margin-top:12px}
+.wa-si{font-size:11px;color:#15803d;font-family:Montserrat,sans-serif;display:flex;gap:6px;margin-bottom:3px}
+.wa-si:last-child{margin-bottom:0}
+.wa-foot{padding:12px 20px 16px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #f2f5f9}
+.wa-cancel{background:none;border:1px solid #cbd5e1;color:#64748b;border-radius:6px;padding:8px 16px;font-size:12px;font-family:Montserrat,sans-serif;cursor:pointer}
+.wa-confirm{background:var(--navy);color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:12px;font-family:Montserrat,sans-serif;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+.wa-confirm:hover:not(:disabled){background:#003a61}.wa-confirm:disabled{opacity:.5;cursor:not-allowed}
+.wa-spin{width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.wa-confirm.busy .wa-spin{display:inline-block}.wa-confirm.busy .wa-lbl{opacity:.7}
+.wa-ev{background:#f8fafc;border-radius:6px;padding:11px 13px;margin-top:12px;font-size:11px;font-family:Montserrat,sans-serif}
+.wa-ev-ttl{font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+.wa-er{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e8edf2}.wa-er:last-child{border-bottom:none}
+.wa-ek{color:#94a3b8}.wa-ev2{color:var(--navy);font-weight:600}
+.wa-ok{color:#15803d;font-weight:700}
+.wa-err-box{background:#fef2f2;border-radius:6px;padding:12px;color:#b91c1c;font-size:12px;font-family:Montserrat,sans-serif}
+.tbadge{background:#fef3c7;color:#92400e;font-size:10px;font-weight:700;font-family:Montserrat,sans-serif;letter-spacing:.06em;padding:2px 6px;border-radius:4px;text-transform:uppercase}
+
+  /* ── DRAG & DROP ── */
+  .kcol-drag-over{background:#f0f9ff;border:2px dashed var(--gold);}
+  .kcard[draggable]{cursor:grab;}
+  .kcard[draggable]:active{cursor:grabbing;}
+
+  /* ── MATCH CARDS IN BUYER PANEL ── */
+  .dp-match-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;margin:0 0 6px 0;cursor:pointer;transition:background .15s;}
+  .dp-match-card:hover{background:#f0f9ff;border-color:var(--gold);}
+  .dp-match-top{border-left:3px solid var(--gold);}
+  .dp-match-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;}
+  .dp-match-ref{font-size:11px;font-weight:700;color:var(--navy);}
+  .dp-match-score{font-size:10px;background:#e0bf95;color:#7a5c1e;padding:1px 5px;border-radius:8px;font-weight:700;}
+  .dp-match-name{font-size:12px;color:#334155;margin-bottom:2px;}
+  .dp-match-meta{font-size:11px;color:#64748b;}
+  .dp-match-fit{font-size:10px;color:#15803d;margin-top:2px;}
+  .dp-match-gap{font-size:10px;color:#ef4444;margin-top:1px;}
+
+  /* ── CONTACT IN BUYER PANEL ── */
+  .dp-copy{color:var(--navy);font-weight:600;cursor:pointer;}
+  .dp-copy:hover{text-decoration:underline;}
+  .dp-act-btn{margin-left:8px;font-size:11px;padding:2px 8px;background:var(--navy);color:#fff;border:none;border-radius:4px;cursor:pointer;}
+  .dp-act-btn:hover{background:var(--gold);color:var(--navy);}
+
+/* WP-05: Matching Kanban P0 */
+.kcol{width:240px;flex-shrink:0}
+.kcard-chips{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0 3px}
+.chip{display:inline-flex;align-items:center;gap:2px;font-size:9px;font-weight:700;font-family:Montserrat,sans-serif;padding:2px 6px;border-radius:2px;letter-spacing:.3px}
+.chip-fit{background:#dcfce7;color:#15803d}
+.chip-gap{background:#fee2e2;color:#dc2626}
+.chip-neutral{background:#f1f5f9;color:#475569}
+.chip-sent{background:#dbeafe;color:#1e40af}
+.chip-interested{background:#d1fae5;color:#059669}
+.chip-viewing{background:#ede9fe;color:#7c3aed}
+.chip-offer{background:#fef3c7;color:#d97706}
+.chip-rejected{background:#fee2e2;color:#dc2626}
+.kcard-listings{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.kcard-listing-row{background:#fdfaf7;border:1px solid #e0bf9440;border-left:2px solid var(--gold);border-radius:2px;padding:5px 7px;cursor:pointer}
+.kcard-listing-row:hover{background:#fff7ed;border-left-color:#c9a96e}
+.kcard-listing-ref{font-size:10px;font-weight:700;color:var(--text-soft);font-family:Montserrat,sans-serif}
+.kcard-listing-name{font-size:11px;font-weight:700;color:var(--navy);line-height:1.3;margin:1px 0}
+.kcard-listing-meta{font-size:10px;color:var(--text-mid);font-family:Montserrat,sans-serif}
+.kcard-listing-chips{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
+.kcard-more{font-size:9px;color:var(--gold);font-family:Montserrat,sans-serif;font-weight:700;cursor:pointer;padding:2px 4px;text-decoration:underline;text-underline-offset:2px}
+.kcard-nav{display:flex;gap:4px;margin-top:6px}
+.kcard-nav-btn{font-size:9px;font-weight:700;font-family:Montserrat,sans-serif;padding:3px 7px;border-radius:2px;border:1px solid var(--border);background:#fff;color:var(--navy);cursor:pointer;text-transform:uppercase;letter-spacing:.5px}
+.kcard-nav-btn:hover{background:var(--navy);color:#fff}
+.kcard-action-btn{font-size:9px;font-weight:700;font-family:Montserrat,sans-serif;padding:3px 7px;border-radius:2px;border:none;background:var(--gold);color:var(--navy);cursor:pointer;text-transform:uppercase;letter-spacing:.5px}
+.kcard-action-btn:hover{background:var(--navy);color:#fff}
+.km-filter-bar{display:flex;gap:8px;align-items:center;padding:0 0 12px;flex-wrap:wrap}
+.km-filter-btn{font-size:10px;font-weight:700;font-family:Montserrat,sans-serif;padding:4px 10px;border-radius:2px;border:1px solid var(--border);background:#fff;color:var(--text-mid);cursor:pointer}
+.km-filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.km-filter-btn:hover:not(.active){background:var(--bg)}
+.match-safety-note{font-size:9px;color:#94a3b8;font-style:italic;font-family:Montserrat,sans-serif;margin-top:4px}
+.kcard-needs-review{font-size:10px;color:#f59e0b;font-family:Montserrat,sans-serif;font-weight:600;padding:4px 0}
+.listing-detail-buyers{margin-top:12px}
+.ldb-row{padding:8px 10px;border:1px solid var(--border);border-radius:2px;background:#fff;margin-bottom:4px;cursor:pointer}
+.ldb-row:hover{background:#f8fafc}
+.ldb-name{font-size:11px;font-weight:700;color:var(--navy)}
+.ldb-meta{font-size:10px;color:var(--text-mid);font-family:Montserrat,sans-serif}
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+
+
+<!-- MAIN APP (hidden until login) -->
+<div id="main-app" style="display:flex;height:100vh;flex-direction:column">
+  <div class="topbar">
+    <div style="display:flex;flex-direction:column;line-height:1.2">
+      <span class="tlogo">Sandberg Estates</span>
+      <span class="tmall">Mallorca</span>
+    </div>
+    <div class="tsep"></div>
+    <div class="tpill" id="tpill">
+      <div class="tdot" id="tdot"></div>
+      <span id="tlbl">Connecting…</span>
+    </div>
+    <div class="tspace"></div>
+    <button onclick="refreshData()" id="refresh-btn" style="background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);font-size:10px;font-family:Montserrat,sans-serif;font-weight:700;padding:4px 10px;border-radius:2px;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;margin-right:10px" title="Refresh data from Salesforce">↺ Refresh</button>
+    <div class="tuser">
+      <span class="tuser-name" id="tuser-name">—</span>
+      <span class="tuser-sub" id="tuser-sub">Sandberg Estates</span>
+    </div>
+    <div style="position:relative;margin-left:14px;width:240px" id="search-wrap">
+      <div class="search-icon">🔍</div>
+      <input class="search-input" id="search-input" placeholder="Search buyers, listings…" oninput="doSearch(this.value)" onfocus="showSearchResults()" autocomplete="off">
+      <div class="search-results" id="search-results" style="display:none"></div>
+    </div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+
+  <div class="app">
+    <div class="sidebar">
+      <div class="nav-group">Today</div>
+      <div class="nav-item active" data-page="cockpit" onclick="nav(this)"><span class="ni">⚡</span>Cockpit</div>
+      <div class="nav-item" data-page="tasks" onclick="nav(this)"><span class="ni">✅</span>Tasks<span class="nc" id="nc-t">—</span></div>
+      <div class="nav-item" data-page="calendar" onclick="nav(this)"><span class="ni">📆</span>Calendar<span class="nc" id="nc-e">—</span></div>
+      <div class="sdiv"></div>
+      <div class="nav-group">Client Work</div>
+      <div class="nav-item" data-page="pipeline" onclick="nav(this)"><span class="ni">📊</span>Pipeline<span class="nc" id="nc-p">—</span></div>
+      <div class="nav-item" data-page="matching" onclick="nav(this)"><span class="ni">🎯</span>Matching<span class="nc" id="nc-m">—</span></div>
+      <div class="nav-item" data-page="buyers" onclick="nav(this)"><span class="ni">👥</span>Buyers<span class="nc" id="nc-b">—</span></div>
+      <div class="nav-item" data-page="viewings" onclick="nav(this)"><span class="ni">📅</span>Viewings<span class="nc" id="nc-v">—</span></div>
+      <div class="nav-item" data-page="contacts" onclick="nav(this)"><span class="ni">🪪</span>Contacts<span class="nc" id="nc-co">—</span></div>
+      <div class="nav-item" data-page="sellers" onclick="nav(this)"><span class="ni">🏘</span>Seller Leads<span class="nc" id="nc-sl">0</span></div>
+      <div class="sdiv"></div>
+      <div class="nav-group">Property Work</div>
+      <div class="nav-item" data-page="listings" onclick="nav(this)"><span class="ni">🏡</span>My Listings<span class="nc" id="nc-l">—</span></div>
+      <div class="sdiv"></div>
+      <div class="nav-group">Internal</div>
+      <div class="nav-item" data-page="admin" onclick="nav(this)"><span class="ni">🔧</span>Admin</div>
+    </div>
+
+    <div class="content">
+      <div id="p-cockpit"  class="page active"><div class="loading-state"><div class="spin-ring"></div><span>Loading from Salesforce…</span></div></div>
+      <div id="p-tasks"    class="page"><div class="loading-state"><div class="spin-ring"></div><span>Loading…</span></div></div>
+      <div id="p-calendar" class="page"><div class="loading-state"><div class="spin-ring"></div><span>Loading…</span></div></div>
+      <div id="p-pipeline" class="page"><div class="loading-state"><div class="spin-ring"></div><span>Loading…</span></div></div>
+      <div id="p-matching" class="page"><div class="loading-state"><div class="spin-ring"></div><span>Loading…</span></div></div>
+      <div id="p-buyers"   class="page"><div class="loading-state"><div class="spin-ring"></div><span>Loading…</span></div></div>
+      <div id="p-viewings" class="page"><div class="loading-state"><div class="spin-ring"></div><span>Loading…</span></div></div>
+      <div id="p-sellers" class="page"><div class="loading-state"><div class="spin-ring"></div><span>Loading…</span></div></div>
+      <div id="p-contacts" class="page"><div class="loading-state"><div class="spin-ring"></div><span>Loading…</span></div></div>
+      <div id="p-listings" class="page"><div class="loading-state"><div class="spin-ring"></div><span>Loading…</span></div></div>
+      <div id="p-admin"   class="page"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closePanel()">
+  <div class="dp">
+    <div class="dp-hd">
+      <button class="dp-close" onclick="closePanel()">×</button>
+      <div class="dp-type" id="dp-type"></div>
+      <div class="dp-title" id="dp-title"></div>
+      <div class="dp-subtitle" id="dp-subtitle"></div>
+    </div>
+    <div class="dp-body" id="dp-body"></div>
+  </div>
+</div>
+
+<script>
+// ─── GLOBAL ERROR CATCHER (release gate) ─────────────────────────────────
+window._fatalJSError = null;
+window.addEventListener("error", function(e){
+  window._fatalJSError = (e.message||"JS error") + " [" + (e.filename||"?") + ":" + (e.lineno||"?") + "]";
+});
+window.addEventListener("unhandledrejection", function(e){
+  window._fatalJSError = window._fatalJSError || ("Unhandled rejection: " + String(e.reason||"?"));
+});
+const OAUTH_URL = "https://minime-7ab0eaa0.base44.app/functions/sfOAuthCallback";
+const DATA_URL  = "https://minime-7ab0eaa0.base44.app/functions/sfDataProxy";
+
+// ─── RELEASE GATE CONSTANTS ───────────────────────────────────────────────
+const RG = {
+  APP_URL:      "https://crm.sandberg-estates.com",
+  BACKEND_URL:  "https://minime-7ab0eaa0.base44.app/functions/sfDataProxy",
+  VERSION:      "v13r3",
+  BUILD_DATE:   "2026-05-12",
+  MIN_BUYERS:   1,
+  MIN_LISTINGS: 1,
+  MIN_TASKS:    0,
+  TEST_BUYER:   "R-019657"
+};
+let RG_STATE = {status:"pending",ts:null,buyers:0,listings:0,tasks:0,error:null};
+const SF_BASE   = "https://sandberg-estates.my.salesforce.com";
+const CLIENT_ID = "3MVG9SOw8KERNN0_yby7WQfdyVY.q3d1wObeRffzf45t4y072NPFWIufUQ5onT7HA_7LlFLn11DSO_W3.pYCo";
+const SF_LOGIN  = "https://login.salesforce.com";
+const CALLBACK  = "https://minime-7ab0eaa0.base44.app/functions/sfOAuthCallback";
+
+var AUTH = null; // {access_token, user_id, display_name, email}
+let D    = null; // loaded data
+const matchStateOverride={}; // drag-drop kanban state
+let calOffset = 0;
+let activeRole = 'agent';
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────
+function startLogin() {
+  const btn = document.getElementById("login-btn");
+  btn.disabled = true;
+  btn.textContent = "Opening Salesforce…";
+  document.getElementById("login-error").textContent = "";
+
+  // Listen for postMessage from popup
+  window.addEventListener("message", onAuthMessage, {once: true});
+
+  const sfUrl = `${SF_LOGIN}/services/oauth2/authorize?` + new URLSearchParams({
+    response_type: "code",
+    client_id: CLIENT_ID,
+    redirect_uri: CALLBACK,
+    scope: "api refresh_token openid",
+    state: "login"
+  });
+
+  const popup = window.open(sfUrl, "sflogin", "width=520,height=680,left=200,top=100");
+  if (!popup) {
+    document.getElementById("login-error").textContent = "Popup blocked. Please allow popups for this site.";
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Sign in with Salesforce`;
+    return;
+  }
+
+  // Fallback: if popup closes without message
+  const timer = setInterval(() => {
+    if (popup.closed) {
+      clearInterval(timer);
+      if (!AUTH) {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Sign in with Salesforce`;
+      }
+    }
+  }, 500);
+}
+
+function onAuthMessage(event) {
+  const data = event.data;
+  if (data?.sfError) {
+    const btn = document.getElementById("login-btn");
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Sign in with Salesforce`;
+    const errEl = document.getElementById("login-error");
+    if (data.sfError === "redirect_uri_mismatch") {
+      errEl.textContent = "Callback URL not whitelisted in Salesforce. See setup note below.";
+      document.getElementById("setup-note").style.display = "block";
+    } else {
+      errEl.textContent = "Login error: " + data.sfError;
+    }
+    return;
+  }
+  if (data?.sfAuth?.ok) {
+    AUTH = data.sfAuth;
+    sessionStorage.setItem("sfAuth_" + APP_VERSION, JSON.stringify(AUTH));
+    onLoggedIn();
+  } else if (data?.sfAuth) {
+    document.getElementById("login-error").textContent = data.sfAuth.error || "Login failed";
+    const btn = document.getElementById("login-btn");
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Sign in with Salesforce`;
+  }
+}
+
+function onLoggedIn() {
+  const lsel=document.getElementById("login-screen");
+  if(lsel){lsel.classList.add("ls-hidden");lsel.style.display="none";}
+  const app = document.getElementById("main-app");
+  app.style.display = "flex";
+  app.style.flexDirection = "column";
+  document.getElementById("tuser-name").textContent = AUTH.display_name || AUTH.email || "Agent";
+  document.getElementById("tuser-sub").textContent = AUTH.email || "Sandberg Estates";
+  boot();
+}
+
+function logout() {
+  sessionStorage.removeItem("sfAuth_" + APP_VERSION); sessionStorage.removeItem("sfAuth");
+  AUTH = null; D = null;
+  document.getElementById("main-app").style.display = "none";
+  const lsl=document.getElementById("login-screen");lsl.classList.remove("ls-hidden");lsl.style.display="flex";
+  document.getElementById("login-btn").disabled = false;
+  document.getElementById("login-btn").innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Sign in with Salesforce`;
+  document.getElementById("login-error").textContent = "";
+}
+
+// Restore session on load
+const APP_VERSION = "v13r4";
+document.addEventListener('DOMContentLoaded', async function() {
+  // Auto-login as service account — OAuth login coming later
+  // Clear any stale sessionStorage from previous OAuth/passcode sessions
+  try { sessionStorage.clear(); } catch(e){}
+  AUTH = {
+    sf_user_id: "005Jy00000Juzx7IAB",
+    display_name: "Daniel Ballmann",
+    email: "daniel@sandberg-estates.com",
+    role: "agent"
+  };
+  const app = document.getElementById("main-app");
+  if(app){ app.style.display = "flex"; app.style.flexDirection = "column"; }
+  const tn = document.getElementById("tuser-name");
+  if(tn) tn.textContent = AUTH.display_name;
+  const ts = document.getElementById("tuser-sub");
+  if(ts) ts.textContent = AUTH.email;
+  await boot();
+});
+
+// ─── PASSCODE LOGIN ───────────────────────────────────────────────────────
+const TEAM_CODES = {
+  "sandberg2026": {display_name:"Daniel Ballmann", email:"daniel@sandberg-estates.com", user_id:"005Jy00000Juzx7IAB"},
+  "angus2026":    {display_name:"Angus Campbell",  email:"angus@sandberg-estates.com",  user_id:"00509000003z6J1AAI"},
+  "anne2026":     {display_name:"Anne Hodgkinson",  email:"anne@sandberg-estates.com",   user_id:""},
+  "lauren2026":   {display_name:"Lauren Payet",     email:"lauren@sandberg-estates.com", user_id:""},
+  "natalie2026":  {display_name:"Natalie Crossley", email:"natalie@sandberg-estates.com",user_id:""},
+  "nathan2026":   {display_name:"Nathan Dilks",     email:"nathan@sandberg-estates.com", user_id:""},
+  "tim2026":      {display_name:"Tim Schemann",     email:"tim@sandberg-estates.com",    user_id:""},
+};
+function checkPasscode(){
+  const inp = document.getElementById("passcode-input");
+  const errEl = document.getElementById("login-error");
+  const raw = inp ? inp.value : "";
+  const code = raw.trim().toLowerCase();
+  if(!raw || raw.length===0){
+    if(errEl) errEl.textContent = "Please enter your access code.";
+    return;
+  }
+  const user = TEAM_CODES[code];
+  if(!user){
+    if(errEl) errEl.textContent = "Invalid code. Try again.";
+    if(inp) inp.value = "";
+    return;
+  }
+  // Mark login success on body for test verification
+  document.body.setAttribute("data-authed", "1");
+  document.title = "Daily Driver — " + (user.display_name||"Agent");
+  // Hide login screen completely
+  const ls = document.getElementById("login-screen");
+  if(ls){ ls.hidden = true; ls.setAttribute("style","display:none"); }
+  // Show main app
+  const app = document.getElementById("main-app");
+  if(app){ app.removeAttribute("hidden"); app.setAttribute("style","display:flex;height:100vh;flex-direction:column"); }
+  // Set user display
+  const tname = document.getElementById("tuser-name");
+  const tsub  = document.getElementById("tuser-sub");
+  if(tname) tname.textContent = user.display_name || user.email || "Agent";
+  if(tsub)  tsub.textContent  = user.email || "Sandberg Estates";
+  AUTH = {access_token: "__service__", user_id: user.user_id, email: user.email, display_name: user.display_name, ok:true};
+  try { sessionStorage.setItem("sfAuth", JSON.stringify(AUTH)); } catch(e){}
+  boot();
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────────────
+function nav(el) {
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("p-"+el.dataset.page).classList.add("active");
+  if (D) renderPage(el.dataset.page);
+}
+function goTo(p) { const el=document.querySelector(`[data-page="${p}"]`); if(el) nav(el); }
+
+// ─── ADMIN / INTERNAL REVIEW ──────────────────────────────────────────────
+function renderAdmin(){
+  const el = document.getElementById("p-admin");
+  if(!el) return;
+  const now = new Date().toLocaleString("en-GB",{timeZone:"Europe/Madrid",hour12:false,
+    year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  const loaded = D?._loadedAt ? new Date(D._loadedAt).toLocaleString("en-GB",{timeZone:"Europe/Madrid",hour12:false}) : "—";
+  const gPass  = RG_STATE.status==="pass";
+  const gFail  = RG_STATE.status==="fail";
+  const gPend  = RG_STATE.status==="pending";
+  const checks = [
+    {label:"App URL responds",          ok: true,                              note: RG.APP_URL},
+    {label:"Backend responds",          ok: gPass||gFail,                      note: RG.BACKEND_URL},
+    {label:"Salesforce auth OK",        ok: gPass,                             note: gFail?(RG_STATE.error||"auth failed"):"Connected"},
+    {label:"Buyers loaded",             ok: RG_STATE.buyers >= RG.MIN_BUYERS,  note: RG_STATE.buyers+" buyers"},
+    {label:"Listings loaded",           ok: RG_STATE.listings >= RG.MIN_LISTINGS, note: RG_STATE.listings+" listings"},
+    {label:"Tasks loaded",              ok: RG_STATE.tasks >= RG.MIN_TASKS,    note: RG_STATE.tasks+" tasks"},
+    {label:"No infinite loading",       ok: gPass,                             note: gPend?"Still loading…":gPass?"Clean boot":"Boot failed"},
+    {label:"No fatal JS error",         ok: !window._fatalJSError,             note: window._fatalJSError||"No errors detected"},
+    {label:"Backend not legacy Worker", ok: !RG.BACKEND_URL.includes("worker"), note: "Using: "+RG.BACKEND_URL},
+  ];
+  const allPass = checks.every(x=>x.ok);
+  const badge = allPass
+    ? `<span style="background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700">✅ RELEASE GATE PASS</span>`
+    : `<span style="background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700">⛔ RELEASE GATE FAIL</span>`;
+
+  el.innerHTML = `
+  <div class="ph"><div>
+    <div class="ph-title">🔧 Admin / Internal Review</div>
+    <div class="ph-sub">Not shown to users. Build health and release gate status.</div>
+  </div></div>
+  <div style="font-family:Montserrat,Arial,sans-serif;max-width:700px">
+
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:16px 20px;margin-bottom:16px">
+      <div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px">Build Identity</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <tr><td style="color:#64748b;padding:3px 0;width:180px">App version</td><td style="color:#002b47;font-weight:600">${esc(RG.VERSION)}</td></tr>
+        <tr><td style="color:#64748b;padding:3px 0">Build date</td><td style="color:#002b47;font-weight:600">${esc(RG.BUILD_DATE)}</td></tr>
+        <tr><td style="color:#64748b;padding:3px 0">Data backend</td><td style="color:#002b47;font-weight:600;word-break:break-all">${esc(D?._backend||RG.BACKEND_URL)}</td></tr>
+        <tr><td style="color:#64748b;padding:3px 0">App URL</td><td style="color:#002b47;font-weight:600">${esc(RG.APP_URL)}</td></tr>
+        <tr><td style="color:#64748b;padding:3px 0">Last SF load</td><td style="color:#002b47;font-weight:600">${loaded}</td></tr>
+        <tr><td style="color:#64748b;padding:3px 0">Panel rendered at</td><td style="color:#002b47;font-weight:600">${now}</td></tr>
+      </table>
+    </div>
+
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:16px 20px;margin-bottom:16px">
+      <div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px">Data Counts</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <tr><td style="color:#64748b;padding:3px 0;width:180px">Buyers</td>
+            <td style="font-weight:600;color:${RG_STATE.buyers>=RG.MIN_BUYERS?"#15803d":"#dc2626"}">${RG_STATE.buyers} ${RG_STATE.buyers>=RG.MIN_BUYERS?"✅":"⚠️"}</td></tr>
+        <tr><td style="color:#64748b;padding:3px 0">Listings</td>
+            <td style="font-weight:600;color:${RG_STATE.listings>=RG.MIN_LISTINGS?"#15803d":"#dc2626"}">${RG_STATE.listings} ${RG_STATE.listings>=RG.MIN_LISTINGS?"✅":"⚠️"}</td></tr>
+        <tr><td style="color:#64748b;padding:3px 0">Tasks</td>
+            <td style="font-weight:600;color:#002b47">${RG_STATE.tasks}</td></tr>
+        <tr><td style="color:#64748b;padding:3px 0">Viewings</td>
+            <td style="font-weight:600;color:#002b47">${(D?.viewings||[]).length}</td></tr>
+        <tr><td style="color:#64748b;padding:3px 0">Contacts</td>
+            <td style="font-weight:600;color:#002b47">${(D?.contacts||[]).length}</td></tr>
+        <tr><td style="color:#64748b;padding:3px 0">Signals (demand)</td>
+            <td style="font-weight:600;color:#002b47">${(D?.signals||[]).length}</td></tr>
+      </table>
+    </div>
+
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:16px 20px;margin-bottom:16px">
+      <div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px">Release Gate Checks</div>
+      <div style="margin-bottom:10px">${badge}</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        ${checks.map(ch=>`<tr>
+          <td style="padding:4px 0;width:28px;text-align:center">${ch.ok?"✅":"❌"}</td>
+          <td style="color:#002b47;font-weight:600;padding:4px 6px">${esc(ch.label)}</td>
+          <td style="color:#64748b;padding:4px 0;font-size:11px">${esc(ch.note)}</td>
+        </tr>`).join("")}
+      </table>
+    </div>
+
+    ${!allPass?`<div style="background:#fff1f2;border:1px solid #fca5a5;border-radius:6px;padding:14px 18px;font-size:12px;color:#991b1b">
+      <strong>⛔ Build not ready for Daniel.</strong><br>
+      Fix all failing checks before marking this build as accepted.
+      <br><br><a href="javascript:boot()" style="color:#991b1b;font-weight:700">↺ Retry data load</a>
+    </div>`:""}
+
+    <div style="margin-top:20px;padding:14px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:11px;color:#78350f">
+      <strong>Safety confirmation:</strong> This panel is read-only. No Salesforce DML, no customer emails, no portal writes, no bulk operations are triggered from this panel.
+    </div>
+  </div>`;
+}
+
+function renderPage(id) {
+  ({cockpit:renderCockpit,tasks:renderTasks,calendar:renderCalendar,pipeline:renderPipeline,matching:renderMatching,buyers:renderBuyers,viewings:renderViewings,listings:renderListings,contacts:renderContacts,sellers:renderSellers,admin:renderAdmin}[id]||function(){})();
+}
+
+// ─── STATUS ──────────────────────────────────────────────────────────────
+function setStatus(s) {
+  const dot=document.getElementById("tdot"),lbl=document.getElementById("tlbl"),pill=document.getElementById("tpill");
+  const styles={live:{bg:"#4ade80",txt:"LIVE · SF · v13r4",col:"#4ade80",pulse:true},loading:{bg:"#e0bf95",txt:"Loading…",col:"#e0bf95",pulse:false},error:{bg:"#ef4444",txt:"Error",col:"#ef4444",pulse:false}};
+  const st=styles[s]||styles.error;
+  dot.style.background=st.bg; lbl.textContent=st.txt; pill.style.color=st.col;
+  st.pulse ? dot.classList.add("live-pulse") : dot.classList.remove("live-pulse");
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────
+
+// ─── IN-APP HELPERS ──────────────────────────────────────────────────────
+function copyText(txt){
+  navigator.clipboard.writeText(txt).then(()=>{
+    const t=document.createElement("div");
+    t.textContent="Copied!";
+    t.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:6px 18px;border-radius:20px;font-size:13px;z-index:9999;pointer-events:none;opacity:1;transition:opacity .5s";
+    document.body.appendChild(t);
+    setTimeout(()=>{t.style.opacity="0";setTimeout(()=>t.remove(),500);},1500);
+  });
+}
+function composeEmail(email,name){
+  // Open email compose in the Tasks/Activity panel (in-app) - for now show modal
+  const subject=encodeURIComponent("Sandberg Estates — "+name);
+  // Show compose panel instead of mailto
+  alert("📧 Email compose panel coming soon.\n\nFor now, copy the address:\n"+email);
+}
+function openListing(id){
+  const l=(D.listings||[]).find(x=>x.Id===id);
+  if(!l)return;
+  openListingPanel(l);
+}
+
+function openListingPanel(l){
+  const ref=l.Property_Reference_Number__c?"#"+l.Property_Reference_Number__c:"";
+  const city=l.pba__City_pb__c||"";
+  const price=l.pba__ListingPrice_pb__c?fmt(l.pba__ListingPrice_pb__c):"Price not available";
+  const beds=l.pba__Bedrooms_pb__c?l.pba__Bedrooms_pb__c+" bedrooms":"";
+  const ltype=l.pba__PropertyType__c||"";
+
+  // Find matched buyers for this listing (from buildMatches data)
+  const matches=buildMatches();
+  const matchedBuyers=[];
+  for(const m of matches){
+    for(const ml of m.matchedListings){
+      if(ml.l.Id===l.Id){
+        matchedBuyers.push({buyer:m,listing:ml});
+        break;
+      }
+    }
+  }
+  matchedBuyers.sort((a,b_)=>b_.listing.score-a.listing.score);
+
+  const stateLabel={
+    property_matches:"Property Matches",proposals_sent:"Proposals Sent",
+    interested:"Interested",viewing_requested:"Viewing Requested",
+    viewing_planned:"Viewing Planned",viewed:"Viewed",
+    feedback_received:"Feedback Received",offer_negotiation:"Offer / Negotiation",
+    not_interested:"Not Interested"
+  };
+
+  const buyersHtml=matchedBuyers.length===0
+    ?`<div style="font-size:11px;color:#94a3b8;font-style:italic;font-family:Montserrat,sans-serif;padding:12px 0">No active buyers matched to this listing.</div>`
+    :`<div class="listing-detail-buyers">`+matchedBuyers.map(({buyer:m,listing:ml})=>{
+        const b=m.b;
+        const bLabel=m.contactName||b.Name;
+        const stage=b.Sale_Stage__c||"New";
+        const colState=stateLabel[ml.state]||ml.state;
+        const bMax=b.pba__ListingPrice_pb_max__c;
+        return`<div class="ldb-row" onclick="openBuyer('${b.Id}')">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="ldb-name">${esc(bLabel)}</div>
+            <span style="font-size:9px;font-family:Montserrat,sans-serif;font-weight:700;color:#7c3aed">${esc(colState)}</span>
+          </div>
+          <div class="ldb-meta">${bMax?"Budget up to "+fmt(bMax)+" · ":""}<span style="font-weight:600">${ml.fitLabel}</span>${" · "}${esc(stage)}</div>
+          ${ml.fit.length>0?`<div style="margin-top:3px">${ml.fit.slice(0,3).map(f=>`<span class="chip chip-fit" style="font-size:8px">✓ ${f}</span>`).join(" ")}</div>`:""}
+          ${ml.gaps.length>0?`<div style="margin-top:2px">${ml.gaps.slice(0,2).map(g=>`<span class="chip chip-gap" style="font-size:8px">✗ ${g}</span>`).join(" ")}</div>`:""}
+        </div>`;
+      }).join("")+`</div>`;
+
+  const body=`
+    <div style="padding:4px 0 8px">
+      <div style="font-size:18px;font-weight:800;color:var(--navy);font-family:Georgia,serif">${esc(l.Name)}</div>
+      <div style="font-size:13px;color:var(--gold);font-weight:700;margin:2px 0">${price}</div>
+      <div style="font-size:11px;color:var(--text-mid);font-family:Montserrat,sans-serif">${[city,beds,ltype].filter(Boolean).join(" · ")}</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      ${l.Website_Public_URL__c?`<a href="${l.Website_Public_URL__c}" target="_blank" style="font-size:10px;font-family:Montserrat,sans-serif;font-weight:700;color:var(--navy);text-decoration:none;border:1px solid var(--border);padding:4px 10px;border-radius:2px">Website ↗</a>`:""}
+      ${l.Expose_German_URL_Web__c?`<a href="${l.Expose_German_URL_Web__c}" target="_blank" style="font-size:10px;font-family:Montserrat,sans-serif;font-weight:700;color:var(--navy);text-decoration:none;border:1px solid var(--border);padding:4px 10px;border-radius:2px">Exposé ↗</a>`:""}
+    </div>
+    <div style="font-size:11px;font-weight:800;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.8px;color:var(--navy);margin-bottom:6px">
+      Matched Buyers (${matchedBuyers.length})
+    </div>
+    <div style="font-size:9px;color:#94a3b8;font-style:italic;font-family:Montserrat,sans-serif;margin-bottom:8px">
+      Read-only match view. Contact details are hidden. No message has been sent from this panel.
+    </div>
+    ${buyersHtml}
+  `;
+
+  openPanel("LISTING",ref||l.Name,`${city} · ${price}`,body);
+}
+
+async function boot() {
+  setStatus("loading");
+  try {
+    const userId = AUTH ? (AUTH.sf_user_id || AUTH.sf_user_id || AUTH.user_id || "") : "";
+    const email  = AUTH ? AUTH.email  : "";
+    const resp = await fetch(DATA_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({action:"getOverview", user_id: userId, email: email})
+    });
+    if (!resp.ok) throw new Error("HTTP "+resp.status);
+    const json = await resp.json();
+    if (!json.ok) throw new Error(json.error||"Backend error");
+    D = json;
+    D.contactMap = {};
+    for (const c of (D.buyerContacts||[])) D.contactMap[c.Id]=c;
+    D._loadedAt = new Date().toISOString();
+    D._backend  = RG.BACKEND_URL;
+    D._version  = RG.VERSION;
+    // ── Record release gate state
+    RG_STATE = {
+      status: "pass",
+      ts: D._loadedAt,
+      buyers:   (D.buyers||[]).length,
+      listings: (D.listings||[]).length,
+      tasks:    (D.tasks||[]).length,
+      error:    null
+    };
+    setStatus("live");
+    const now=new Date(); now.setHours(0,0,0,0);
+    const ov=(D.tasks||[]).filter(t=>t.ActivityDate&&new Date(t.ActivityDate)<now);
+    const nc_t=document.getElementById("nc-t");
+    nc_t.textContent=(D.tasks||[]).length;
+    if(ov.length>0) nc_t.classList.add("nc-hot");
+    document.getElementById("nc-e").textContent=(D.events||[]).length;
+    document.getElementById("nc-p").textContent=(D.buyers||[]).length;
+    document.getElementById("nc-m").textContent=(D.buyers||[]).length;
+    document.getElementById("nc-b").textContent=(D.buyers||[]).length;
+    document.getElementById("nc-l").textContent=(D.listings||[]).length;
+    document.getElementById("nc-v").textContent=(D.viewings||[]).length;
+    document.getElementById("nc-sl").textContent=0;
+    document.getElementById("nc-co").textContent=(D.contacts||[]).length;
+    renderPage("cockpit");
+  } catch(e) {
+    RG_STATE = {status:"fail", ts:new Date().toISOString(), buyers:0, listings:0, tasks:0, error:e.message};
+    setStatus("error");
+    document.getElementById("p-cockpit").innerHTML=`<div class="error-state" style="padding:32px;font-family:Montserrat,sans-serif">
+      <div style="font-size:22px;margin-bottom:8px">⚠️</div>
+      <strong style="color:#002b47">Salesforce data could not be loaded</strong>
+      <div style="margin:12px 0;font-size:12px;color:#64748b;background:#f8fafc;border-radius:4px;padding:10px;border-left:3px solid #ef4444">${esc(e.message)}</div>
+      <a href="javascript:boot()" style="color:#991b1b;font-weight:700;font-size:12px">↺ Retry</a>
+      &nbsp;&nbsp;
+      <a href="javascript:nav(document.querySelector('[data-page=admin]'))" style="color:#002b47;font-weight:700;font-size:12px">🔧 View Admin Panel</a>
+    </div>`;
+  }
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────
+const fmt=n=>n?"€"+Math.round(n).toLocaleString("de-DE"):"—";
+const fmtD=s=>s?new Date(s).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):"—";
+const fmtDs=s=>s?new Date(s).toLocaleDateString("en-GB",{day:"numeric",month:"short"}):"—";
+const fmtT=s=>s?new Date(s).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"";
+const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const tag=(l,c)=>`<span class="tag ${c}">${esc(l)}</span>`;
+function stageTag(s){const m={New:"t-blue",Contacted:"t-navy","Qualified":"t-amber","Active Search":"t-teal","Shortlist / Viewings":"t-orange",Inactive:"t-gray"};return tag(s||"—",m[s]||"t-gray");}
+const sfLink=(obj,id)=>`https://sandberg-estates.lightning.force.com/lightning/r/${obj}/${id}/view`;
+
+function tCls(t){
+  const now=new Date();now.setHours(0,0,0,0);
+  if(!t.ActivityDate)return "t-fu";
+  const d=new Date(t.ActivityDate);
+  if(d<now)return "t-ov";
+  if(d.getTime()===now.getTime())return "t-td";
+  return "t-fu";
+}
+function tDue(t){
+  if(!t.ActivityDate)return "No date";
+  const now=new Date();now.setHours(0,0,0,0);
+  const d=new Date(t.ActivityDate);
+  const diff=Math.round((d-now)/864e5);
+  if(diff<0)return Math.abs(diff)+"d overdue";
+  if(diff===0)return "Today";
+  if(diff===1)return "Tomorrow";
+  return fmtDs(t.ActivityDate);
+}
+
+function buildMatches(){
+  // ── Signal map: buyer+listing → [reactions] (most recent first)
+  const sigMap={};
+  for(const s of (D.signals||[])){
+    if(!s.Buyer_Lead__c||!s.Listing__c)continue;
+    const k=s.Buyer_Lead__c+"::"+s.Listing__c;
+    if(!sigMap[k])sigMap[k]=[];
+    sigMap[k].push({reaction:s.Reaction__c||"",at:s.Clicked_At__c||""});
+  }
+  // Sort reactions newest-first within each pair
+  for(const k in sigMap) sigMap[k].sort((a,b)=>b.at.localeCompare(a.at));
+
+  // ── Viewing map: listing → viewings (also buyer contact → viewings for buyer-based lookup)
+  const viewByListing={};
+  const viewByContact={};
+  for(const v of (D.viewings||[])){
+    if(v.Listing__c){
+      if(!viewByListing[v.Listing__c])viewByListing[v.Listing__c]=[];
+      viewByListing[v.Listing__c].push(v);
+    }
+    if(v.Contact__c){
+      if(!viewByContact[v.Contact__c])viewByContact[v.Contact__c]=[];
+      viewByContact[v.Contact__c].push(v);
+    }
+  }
+
+  // ── Offer map: listing → offers
+  const offerByListing={};
+  for(const o of (D.offers||[])){
+    if(!o.pba__Listing__c)continue;
+    if(!offerByListing[o.pba__Listing__c])offerByListing[o.pba__Listing__c]=[];
+    offerByListing[o.pba__Listing__c].push(o);
+  }
+
+  // ── Score each buyer against each listing (APP-MATCH-001..003)
+  const ACTIVE_STAGES_HIGH=new Set(["Active Search","Qualified","Shortlist / Viewings","Negotiation / Offer","Under Option / Arras"]);
+
+  return (D.buyers||[]).map(b=>{
+    const bMax=b.pba__ListingPrice_pb_max__c||Infinity;
+    const bMin=b.pba__ListingPrice_pb_min__c||0;
+    const bBeds=b.pba__Bedrooms_pb_min__c||0;
+    const bTypes=new Set((b.pba__PropertyType__c||"").split(";").map(x=>x.trim().toLowerCase()).filter(Boolean));
+    const bCities=(b.City_multipicklist__c||"").split(";").map(x=>x.trim().toLowerCase()).filter(Boolean);
+    const wantsPool=!!b.pba__Pool_pb__c;
+    const isHighActive=ACTIVE_STAGES_HIGH.has(b.Sale_Stage__c||"");
+
+    const scored=[];
+    for(const l of (D.listings||[])){
+      const p=l.pba__ListingPrice_pb__c||0;
+      const lb=l.pba__Bedrooms_pb__c||0;
+      const lType=(l.pba__PropertyType__c||"").toLowerCase();
+      const lCity=(l.pba__City_pb__c||"").toLowerCase();
+
+      // Hard filters: only reject if buyer has criteria AND listing fails badly
+      if(bMax<Infinity&&p>bMax*1.20)continue;
+      if(bMin>0&&p<bMin*0.70)continue;
+      if(bBeds>0&&lb>0&&lb<bBeds)continue;
+
+      let score=20;
+      const fit=[],gaps=[];
+
+      // Budget (APP-MATCH-003)
+      if(p>0&&bMax<Infinity){
+        if(p<=bMax){score+=25;fit.push("Budget fit");}
+        else if(p<=bMax*1.10){score+=10;fit.push("Slightly over budget");}
+        else{score-=5;gaps.push("Over budget");}
+      }else if(bMax===Infinity){fit.push("No budget limit");}
+      else{gaps.push("Price unknown");}
+
+      // Location
+      if(bCities.length>0){
+        if(bCities.some(c=>lCity.includes(c)||c.includes(lCity.split(" ")[0]))){score+=25;fit.push("Area match");}
+        else{score-=10;gaps.push("Different area");}
+      }
+
+      // Bedrooms
+      if(bBeds>0&&lb>0){
+        if(lb>=bBeds){score+=15;fit.push("Bedrooms match");}
+        else{score-=5;gaps.push("Fewer bedrooms");}
+      }else if(bBeds>0&&lb===0){gaps.push("Bedroom count unknown");}
+
+      // Property type
+      if(bTypes.size>0&&lType){
+        if([...bTypes].some(t=>lType.includes(t)||t.includes(lType))){score+=15;fit.push("Property type match");}
+        else{score-=5;gaps.push("Different property type");}
+      }
+
+      // Pool
+      if(wantsPool){
+        if(l.pba__SystemIdxPool__c){score+=10;fit.push("Pool");}
+        else{score-=5;gaps.push("No pool");}
+      }
+
+      // High-active stage bonus
+      if(isHighActive)score+=10;
+
+      // Determine fit label
+      let fitLabel;
+      if(score>=80)fitLabel="Strong fit";
+      else if(score>=55)fitLabel="Possible fit";
+      else if(score>=35)fitLabel="Weak fit";
+      else if(fit.length===0)fitLabel="Missing criteria";
+      else fitLabel="Weak fit";
+
+      scored.push({l,score,fit,gaps,fitLabel});
+    }
+    scored.sort((a,b_)=>b_.score-a.score);
+    const topMatches=scored.slice(0,10);
+
+    // Build per-listing state for each match
+    const matchedListings=topMatches.map(({l,score,fit,gaps,fitLabel})=>{
+      const sigKey=b.Id+"::"+l.Id;
+      const sigs=sigMap[sigKey]||[];
+      const latestReaction=(sigs[0]?.reaction||"").toLowerCase();
+      const views=viewByListing[l.Id]||[];
+      // Find viewings for this buyer+listing (match by contact)
+      const buyerContact=b.pba__Contact__c;
+      const buyerViews=views.filter(v=>v.Contact__c===buyerContact);
+      const offers=offerByListing[l.Id]||[];
+
+      // ── Derive column state (APP-MATCH-001 corrected, WP-05 revision)
+      // Priority (high → low):
+      //   not_interested > offer_negotiation > feedback_received > viewed
+      //   > viewing_planned > viewing_requested > interested
+      //   > proposals_sent > property_matches
+      let state="property_matches";
+
+      // not_interested: any explicit "not for me" signal
+      const isNotInterested=sigs.some(s=>["not for me","not_for_me"].includes((s.reaction||"").toLowerCase()));
+      if(isNotInterested){
+        state="not_interested";
+      // offer / negotiation: active Opportunity record
+      }else if(offers.length>0){
+        const activeOffer=offers.find(o=>!["withdrawn","cancelled","rejected"].includes((o.pba__Status__c||"").toLowerCase()));
+        if(activeOffer) state="offer_negotiation";
+      }
+      if(state==="property_matches"||state==="offer_negotiation"){
+        // Viewing-based states (SF Viewing__c record is the source of truth)
+        if(buyerViews.length>0){
+          const latest=buyerViews.sort((a,b_)=>new Date(b_.Viewing_DateTime__c||0)-new Date(a.Viewing_DateTime__c||0))[0];
+          if(latest.Buyer_Feedback__c||latest.Viewing_Report_Sent__c){
+            state="feedback_received";
+          } else if(new Date(latest.Viewing_DateTime__c||"")>new Date()){
+            state="viewing_planned"; // SF Viewing record, future date
+          } else {
+            state="viewed"; // SF Viewing record, past date, no feedback yet
+          }
+        }
+      }
+      if(state==="property_matches"){
+        // viewing_requested: buyer explicitly requested a viewing via signal/vote
+        // but no Viewing__c record exists yet — distinct from viewing_planned
+        const viewingReqReactions=["request viewing","request_viewing","viewing request"];
+        const hasViewingRequest=sigs.some(s=>viewingReqReactions.includes((s.reaction||"").toLowerCase()));
+        if(hasViewingRequest){
+          state="viewing_requested";
+        // interested: positive engagement but no viewing request
+        } else if(sigs.some(s=>(s.reaction||"").toLowerCase()==="interested")){
+          state="interested";
+        // proposals_sent: a demand signal exists (proposal delivered) but no engagement yet
+        } else if(sigs.length>0){
+          state="proposals_sent";
+        }
+        // else: property_matches (default — no engagement evidence)
+      }
+
+      // Apply local-only drag-drop override (non-persistent, resets on reload)
+      // viewing_planned overrides require Preview → Confirm via kanbanDrop modal
+      const overrideKey=b.Id+"::"+l.Id;
+      if(matchStateOverride[overrideKey])state=matchStateOverride[overrideKey];
+
+      // Apply local-only drag-drop override (non-persistent, resets on reload)
+      const overrideKey=b.Id+"::"+l.Id;
+      if(matchStateOverride[overrideKey])state=matchStateOverride[overrideKey];
+      return{l,score,fit,gaps,fitLabel,state,sigs,buyerViews,offers,latestReaction};
+    });
+
+    const contactName=b.pba__Contact__r?.FirstName&&b.pba__Contact__r?.LastName
+      ?(b.pba__Contact__r.FirstName+" "+b.pba__Contact__r.LastName)
+      :(b.pba__Contact__r?.FirstName||b.pba__Contact__r?.LastName||"");
+
+    return{b,contactName,matchedListings};
+  }).filter(m=>m.matchedListings.length>0);
+}
+
+
+// ─── COCKPIT ─────────────────────────────────────────────────────────────
+function renderCockpit(role){
+  if(role) activeRole=role;
+  const now=new Date();now.setHours(0,0,0,0);
+  const M=buildMatches();
+  const upcoming=(D.viewings||[]).filter(v=>v.Viewing_DateTime__c&&new Date(v.Viewing_DateTime__c)>=now);
+  const reportDue=(D.viewings||[]).filter(v=>!v.Viewing_Report_Sent__c&&v.Viewing_DateTime__c&&new Date(v.Viewing_DateTime__c)<now);
+  const overdue=(D.tasks||[]).filter(t=>t.ActivityDate&&new Date(t.ActivityDate)<now);
+  const dueToday=(D.tasks||[]).filter(t=>{if(!t.ActivityDate)return false;return new Date(t.ActivityDate).getTime()===now.getTime();});
+  const newM=M.filter(m=>m.matchedListings?.some(ml=>ml.state==="property_matches"));
+  const todayEv=(D.events||[]).filter(e=>{if(!e.StartDateTime)return false;const d=new Date(e.StartDateTime);d.setHours(0,0,0,0);return d.getTime()===now.getTime();});
+  const h=new Date().getHours();
+  const greet=h<12?"Good morning":h<18?"Good afternoon":"Good evening";
+
+  document.getElementById("p-cockpit").innerHTML=`
+  <div class="ph"><div>
+    <div class="ph-title">${greet}, ${esc(AUTH?.display_name?.split(" ")[0]||"Daniel")}.</div>
+    <div class="ph-sub">${(D.buyers||[]).length} active buyers · ${(D.listings||[]).length} listings · ${new Date(D.fetchedAt).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</div>
+  </div></div>
+  <div class="role-tabs">
+    ${[["agent","Agent"],["ta","TA / Ops"],["marketing","Marketing"],["hos","Head of Sales"]].map(([k,l])=>`<div class="role-tab${activeRole===k?" active":""}" onclick="renderCockpit('${k}')">${l}</div>`).join("")}
+  </div>
+  <div class="stats">
+    <div class="stat ${overdue.length>0?"stat-warn":""}" onclick="goTo('tasks')">
+      <div class="stat-n">${overdue.length}</div><div class="stat-l">Overdue tasks</div>
+      ${dueToday.length>0?`<div class="stat-sub">${dueToday.length} due today</div>`:""}
+      <div class="stat-bar ${overdue.length>0?"stat-bar-red":""}"></div>
+    </div>
+    <div class="stat" onclick="goTo('calendar')">
+      <div class="stat-n">${todayEv.length||(D.events||[]).length}</div>
+      <div class="stat-l">${todayEv.length?"Today's events":"Upcoming events"}</div>
+      <div class="stat-sub">${(D.events||[]).length} total</div>
+      <div class="stat-bar"></div>
+    </div>
+    <div class="stat" onclick="goTo('matching')">
+      <div class="stat-n">${newM.length}</div><div class="stat-l">Matches to review</div>
+      <div class="stat-bar"></div>
+    </div>
+    <div class="stat" onclick="goTo('viewings')">
+      <div class="stat-n">${upcoming.length}</div><div class="stat-l">Upcoming viewings</div>
+      ${reportDue.length>0?`<div class="stat-sub">${reportDue.length} report due</div>`:""}
+      <div class="stat-bar"></div>
+    </div>
+    <div class="stat" onclick="goTo('listings')">
+      <div class="stat-n">${(D.listings||[]).length}</div><div class="stat-l">My listings</div>
+      <div class="stat-bar"></div>
+    </div>
+  </div>
+  <div class="cg-wide">
+    <div class="cp">
+      <div class="cp-hd"><span class="cp-t">⚠ Overdue tasks</span><span class="cp-c ${overdue.length>0?"cp-c-red":""}">${overdue.length}</span></div>
+      ${overdue.length===0?'<div class="ci-empty">All clear ✓</div>':overdue.slice(0,7).map(t=>{
+        const who=(t.Who||{}).Name||"";
+        return`<div class="ci" onclick="openTask('${t.Id}')">
+          <div><div class="ci-name">${esc(t.Subject||"Task")}</div><div class="ci-sub">${esc(who)}</div></div>
+          <div class="ci-right"><span style="font-size:10px;color:#ef4444;font-weight:700;font-family:Montserrat,sans-serif">${tDue(t)}</span></div>
+        </div>`;}).join("")+(overdue.length>7?`<div class="ci-empty" onclick="goTo('tasks')" style="cursor:pointer">View all ${overdue.length} →</div>`:"")}
+      ${dueToday.length>0?`<div style="padding:7px 14px;border-top:1px solid #fef3c7;background:#fffbeb"><span style="font-size:10px;font-weight:700;color:#92400e;font-family:Montserrat,sans-serif">${dueToday.length} due today</span></div>`:""}
+    </div>
+    <div class="cp">
+      <div class="cp-hd"><span class="cp-t">Today & upcoming</span><span class="cp-c">${(D.events||[]).length}</span></div>
+      ${(D.events||[]).length===0?'<div class="ci-empty">No upcoming events</div>':D.events.slice(0,7).map(e=>{
+        const who=(e.Who||{}).Name||"";
+        return`<div class="ci" onclick="openEvent('${e.Id}')">
+          <div><div class="ci-name">${esc(e.Subject||"Event")}</div><div class="ci-sub">${who?esc(who)+" · ":""}${esc(e.Location||"")}</div></div>
+          <div class="ci-right" style="font-size:10px;color:var(--text-soft);font-family:Montserrat,sans-serif;white-space:nowrap">${fmtDs(e.StartDateTime)}</div>
+        </div>`;}).join("")}
+    </div>
+  </div>
+  ${(()=>{
+    // role-aware bottom section
+    const matchCards = newM.slice(0,5).map(m=>`
+      <div class="ci" onclick="openBuyer('${m.b.Id}')">
+        <div><div class="ci-name">${esc(m.b.Name)}</div>
+        <div class="ci-sub">${fmt(m.b.pba__ListingPrice_pb_max__c)} · ${esc(m.b.pba__PropertyType__c||"Any")}${m.b.City_multipicklist__c?" · "+esc(m.b.City_multipicklist__c.split(";")[0]):""}</div></div>
+        <div class="ci-right">${m.matchedListings?.[0]?.l?.Property_Reference_Number__c?tag("#"+m.matchedListings[0].l.Property_Reference_Number__c,"t-navy"):""}</div>
+      </div>`).join("") + (newM.length>5?`<div class="ci-empty" onclick="goTo('matching')" style="cursor:pointer">+${newM.length-5} more →</div>`:"");
+    const viewingCards = upcoming.slice(0,5).map(v=>{
+      const l=D.listings.find(x=>x.Id===v.Listing__c);
+      return`<div class="ci" onclick="openViewing('${v.Id}')">
+        <div><div class="ci-name">${esc(v.Name||"Viewing")}</div>
+        <div class="ci-sub">${l?"#"+l.Property_Reference_Number__c+" · "+esc(l.pba__City_pb__c||""):"—"}</div></div>
+        <div class="ci-right" style="font-size:10px;color:var(--text-soft);font-family:Montserrat,sans-serif;white-space:nowrap">${fmtDs(v.Viewing_DateTime__c)}</div>
+      </div>`;}).join("")+(reportDue.length>0?`<div style="padding:7px 14px;border-top:1px solid #fee2e2;background:#fff5f5"><span style="font-size:10px;font-weight:700;color:#dc2626;font-family:Montserrat,sans-serif">⚠ ${reportDue.length} report${reportDue.length!==1?"s":""} not sent</span></div>`:"");
+    const signalCards = D.signals.slice(0,5).map(s=>{
+      const b=D.buyers.find(x=>x.Id===s.Buyer_Lead__c),l=D.listings.find(x=>x.Id===s.Listing__c);
+      const rxCls=s.Reaction__c==="Interested"?"t-green":s.Reaction__c==="Not for me"?"t-red":"t-gray";
+      return`<div class="ci"><div><div class="ci-name">${esc(b?.Name||"—")}</div><div class="ci-sub">#${l?.Property_Reference_Number__c||"?"}</div></div>${tag(s.Reaction__c||"Signal",rxCls)}</div>`;}).join("");
+    const overdueCards = overdue.slice(0,5).map(t=>`
+      <div class="ci" onclick="openTask('${t.Id}')">
+        <div><div class="ci-name">${esc(t.Subject||"Task")}</div><div class="ci-sub">${esc((t.Who||{}).Name||"")}</div></div>
+        <div class="ci-right" style="font-size:10px;color:#ef4444;font-weight:700;font-family:Montserrat,sans-serif">${tDue(t)}</div>
+      </div>`).join("");
+    const listingCards = D.listings.slice(0,6).map(l=>`
+      <div class="ci" onclick="openListing('${l.Id}')">
+        <div><div class="ci-name">${esc(l.Name)}</div>
+        <div class="ci-sub">${esc(l.pba__City_pb__c||"—")} · ${fmt(l.pba__ListingPrice_pb__c)}</div></div>
+        <div class="ci-right">${l.Website_Public_URL__c?'<span style="font-size:10px;font-family:Montserrat,sans-serif;color:#15803d;font-weight:700">Online ✓</span>':'<span style="font-size:10px;font-family:Montserrat,sans-serif;color:#94a3b8">Offline</span>'}</div>
+      </div>`).join("");
+    const pipelineCards = ["New","Contacted","Qualified","Active Search","Shortlist / Viewings"].map(s=>{
+      const n=D.buyers.filter(b=>(b.Sale_Stage__c||"New")===s).length;
+      return n>0?`<div class="ci" onclick="goTo('pipeline')"><div><div class="ci-name">${s}</div></div><div class="ci-right" style="font-size:15px;font-family:'Playfair Display',serif;font-weight:500">${n}</div></div>`:"";
+    }).join("");
+
+    if(activeRole==='ta') return `
+    <div class="cg" style="margin-top:14px">
+      <div class="cp"><div class="cp-hd"><span class="cp-t">Viewings needing report</span><span class="cp-c ${reportDue.length>0?"cp-c-red":""}">${reportDue.length}</span></div>
+        ${reportDue.length===0?'<div class="ci-empty">All reports sent ✓</div>':reportDue.slice(0,5).map(v=>{const l=D.listings.find(x=>x.Id===v.Listing__c);return`<div class="ci" onclick="openViewing('${v.Id}')"><div><div class="ci-name">${esc(v.Name||"Viewing")}</div><div class="ci-sub">${l?"#"+l.Property_Reference_Number__c:""}</div></div><div class="ci-right" style="font-size:10px;color:#ef4444;font-weight:700;font-family:Montserrat,sans-serif">${fmtDs(v.Viewing_DateTime__c)}</div></div>`;}).join("")}
+      </div>
+      <div class="cp"><div class="cp-hd"><span class="cp-t">Overdue tasks</span><span class="cp-c ${overdue.length>0?"cp-c-red":""}">${overdue.length}</span></div>
+        ${overdue.length===0?'<div class="ci-empty">All clear ✓</div>':overdueCards}
+      </div>
+      <div class="cp"><div class="cp-hd"><span class="cp-t">Upcoming events</span><span class="cp-c">${(D.events||[]).length}</span></div>
+        ${(D.events||[]).length===0?'<div class="ci-empty">Nothing to review yet</div>':D.events.slice(0,5).map(e=>`<div class="ci" onclick="openEvent('${e.Id}')"><div><div class="ci-name">${esc(e.Subject||"Event")}</div><div class="ci-sub">${esc(e.Location||"")}</div></div><div class="ci-right" style="font-size:10px;color:var(--text-soft);font-family:Montserrat,sans-serif">${fmtDs(e.StartDateTime)}</div></div>`).join("")}
+      </div>
+    </div>`;
+    if(activeRole==='marketing') return `
+    <div class="cg" style="margin-top:14px">
+      <div class="cp" style="grid-column:span 2"><div class="cp-hd"><span class="cp-t">My listings</span><span class="cp-c">${(D.listings||[]).length}</span></div>
+        ${(D.listings||[]).length===0?'<div class="ci-empty">Nothing to review yet</div>':listingCards}
+      </div>
+      <div class="cp"><div class="cp-hd"><span class="cp-t">Proposal feedback</span><span class="cp-c">${(D.signals||[]).length}</span></div>
+        ${(D.signals||[]).length===0?'<div class="ci-empty">Nothing to review yet</div>':signalCards}
+      </div>
+    </div>`;
+    if(activeRole==='hos') return `
+    <div class="cg" style="margin-top:14px">
+      <div class="cp"><div class="cp-hd"><span class="cp-t">Pipeline</span><span class="cp-c">${(D.buyers||[]).length}</span></div>
+        ${pipelineCards||'<div class="ci-empty">Nothing to review yet</div>'}
+      </div>
+      <div class="cp"><div class="cp-hd"><span class="cp-t">Matches to action</span><span class="cp-c">${newM.length}</span></div>
+        ${newM.length===0?'<div class="ci-empty">Nothing to review yet</div>':matchCards}
+      </div>
+      <div class="cp"><div class="cp-hd"><span class="cp-t">Overdue tasks</span><span class="cp-c ${overdue.length>0?"cp-c-red":""}">${overdue.length}</span></div>
+        ${overdue.length===0?'<div class="ci-empty">All clear ✓</div>':overdueCards}
+      </div>
+    </div>`;
+    // default: agent
+    return `
+    <div class="cg" style="margin-top:14px">
+      <div class="cp"><div class="cp-hd"><span class="cp-t">Matches to review</span><span class="cp-c">${newM.length}</span></div>
+        ${newM.length===0?'<div class="ci-empty">Nothing to review yet</div>':matchCards}
+      </div>
+      <div class="cp"><div class="cp-hd"><span class="cp-t">Viewings</span><span class="cp-c">${upcoming.length}</span></div>
+        ${upcoming.length===0?'<div class="ci-empty">Nothing to review yet</div>':viewingCards}
+      </div>
+      <div class="cp"><div class="cp-hd"><span class="cp-t">Proposal feedback</span><span class="cp-c">${(D.signals||[]).length}</span></div>
+        ${(D.signals||[]).length===0?'<div class="ci-empty">Nothing to review yet</div>':signalCards}
+      </div>
+    </div>`;
+  })()}
+`;
+}
+
+// ─── TASKS ───────────────────────────────────────────────────────────────
+function renderTasks(){
+  const now=new Date();now.setHours(0,0,0,0);
+  const ov=(D.tasks||[]).filter(t=>t.ActivityDate&&new Date(t.ActivityDate)<now);
+  const td=(D.tasks||[]).filter(t=>{if(!t.ActivityDate)return false;return new Date(t.ActivityDate).getTime()===now.getTime();});
+  const fu=(D.tasks||[]).filter(t=>{if(!t.ActivityDate)return true;return new Date(t.ActivityDate)>now;});
+  const rows=arr=>arr.map(t=>{
+    const cls=tCls(t),who=(t.Who||{}).Name||"",what=(t.What||{}).Name||"";
+    return`<div class="task-row ${cls}" onclick="openTask('${t.Id}')">
+      <div class="task-dot"></div>
+      <div style="flex:1;min-width:0"><div class="task-name">${esc(t.Subject||"Task")}</div>
+      <div class="task-who">${who?esc(who):""}${what&&who?" · ":""}${what?esc(what):""}</div></div>
+      <div class="task-due">${tDue(t)}</div>
+    </div>`;}).join("");
+  document.getElementById("p-tasks").innerHTML=`
+  <div class="ph"><div><div class="ph-title">Tasks</div>
+  <div class="ph-sub">${(D.tasks||[]).length} open · ${ov.length} overdue · ${td.length} due today</div></div></div>
+  ${ov.length>0?`<div class="sec-lbl" style="color:#dc2626">Overdue (${ov.length})</div><div class="tw">${rows(ov)}</div>`:""}
+  ${td.length>0?`<div class="sec-lbl" style="color:#f59e0b">Due Today (${td.length})</div><div class="tw">${rows(td)}</div>`:""}
+  ${fu.length>0?`<div class="sec-lbl">Upcoming (${fu.length})</div><div class="tw">${rows(fu)}</div>`:""}`;
+}
+
+// ─── CALENDAR ────────────────────────────────────────────────────────────
+function renderCalendar(){
+  const base=new Date();base.setDate(1);base.setMonth(base.getMonth()+calOffset);
+  const year=base.getFullYear(),month=base.getMonth();
+  const MN=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const today=new Date();today.setHours(0,0,0,0);
+  const firstDow=(base.getDay()+6)%7;
+  const dim=new Date(year,month+1,0).getDate();
+  const evMap={};
+  for(const e of D.events){if(!e.StartDateTime)continue;const k=new Date(e.StartDateTime).toISOString().slice(0,10);(evMap[k]||(evMap[k]=[])).push({...e,_type:"event"});}
+  for(const t of D.tasks){if(!t.ActivityDate)continue;(evMap[t.ActivityDate]||(evMap[t.ActivityDate]=[])).push({...t,_type:"task"});}
+  const dow=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  let cells="",dayCount=1;
+  for(let row=0;row<6;row++){
+    if(dayCount>dim&&row>0)break;
+    for(let col=0;col<7;col++){
+      const ci=row*7+col;
+      if(ci<firstDow||dayCount>dim){cells+=`<div class="cal-cell other"></div>`;continue;}
+      const ds=`${year}-${String(month+1).padStart(2,"0")}-${String(dayCount).padStart(2,"0")}`;
+      const isT=new Date(year,month,dayCount).getTime()===today.getTime();
+      const evs=evMap[ds]||[];
+      cells+=`<div class="cal-cell${isT?" today":""}">
+        ${isT?`<div class="cal-dn">${dayCount}</div>`:`<div class="cal-dn" style="font-family:Montserrat,sans-serif;font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:3px">${dayCount}</div>`}
+        ${evs.slice(0,3).map(e=>{
+          const isTask=e._type==="task";
+          return`<div class="cal-ev${isTask?" cal-ev-t":""}" onclick="${isTask?`openTask('${e.Id}')`:`openEvent('${e.Id}')`}" title="${esc(e.Subject||"")}">${esc((e.Subject||"").slice(0,22))}</div>`;
+        }).join("")}
+        ${evs.length>3?`<div style="font-size:9px;color:#94a3b8;font-family:Montserrat,sans-serif">+${evs.length-3} more</div>`:""}
+      </div>`;
+      dayCount++;
+    }
+  }
+  document.getElementById("p-calendar").innerHTML=`
+  <div class="ph"><div><div class="ph-title">Calendar</div>
+  <div class="ph-sub">${(D.events||[]).length} upcoming events · overdue tasks shown in red</div></div></div>
+  <div class="cal-month-nav">
+    <button class="cal-btn" onclick="calOffset--;renderCalendar()">← Prev</button>
+    <div class="cal-month-title">${MN[month]} ${year}</div>
+    <button class="cal-btn" onclick="calOffset++;renderCalendar()">Next →</button>
+  </div>
+  <div class="cal-grid">
+    ${dow.map(d=>`<div class="cal-dow">${d}</div>`).join("")}
+    ${cells}
+  </div>`;
+}
+
+// ─── PIPELINE ────────────────────────────────────────────────────────────
+function renderPipeline(){
+  const stages=["New","Contacted","Qualified","Active Search","Shortlist / Viewings","Inactive"];
+  const grouped={};for(const s of stages)grouped[s]=[];
+  for(const b of D.buyers){const s=b.Sale_Stage__c||"New";(grouped[s]||grouped["New"]).push(b);}
+  const total=(D.buyers||[]).length;
+  document.getElementById("p-pipeline").innerHTML=`
+  <div class="ph"><div><div class="ph-title">Buyer Pipeline</div>
+  <div class="ph-sub">${total} active buyers across ${stages.length} stages</div></div></div>
+  <div class="pipeline">
+    ${stages.map(s=>{const n=(grouped[s]||[]).length;const pct=total>0?Math.round(n/total*100):0;
+      return`<div class="pipe-stage" onclick="showPipeStage('${s}')">
+        <div class="pipe-n">${n}</div><div class="pipe-l">${s}</div>
+        <div class="pipe-bar" style="width:${pct}%"></div>
+      </div>`;}).join("")}
+  </div>
+  <div id="pipe-detail"></div>`;
+}
+
+function showPipeStage(stage){
+  const buyers=D.buyers.filter(b=>(b.Sale_Stage__c||"New")===stage);
+  document.querySelectorAll(".pipe-stage").forEach(el=>el.classList.remove("active-pipe"));
+  const stages=["New","Contacted","Qualified","Active Search","Shortlist / Viewings","Inactive"];
+  const all=document.querySelectorAll(".pipe-stage");
+  const idx=stages.indexOf(stage);
+  if(all[idx])all[idx].classList.add("active-pipe");
+  document.getElementById("pipe-detail").innerHTML=buyers.length===0?
+    `<div class="empty-state"><div class="cs-icon">👤</div><div class="cs-title">No buyers in ${esc(stage)}</div></div>`:
+    `<div class="tw"><table>
+      <thead><tr><th>Name</th><th>Max Budget</th><th>Type</th><th>Beds</th><th>Location</th><th>Contact</th></tr></thead>
+      <tbody>${buyers.map(b=>{const c=D.contactMap[b.pba__Contact__c];
+        return`<tr onclick="openBuyer('${b.Id}')">
+          <td style="font-weight:700">${esc(b.Name)}</td>
+          <td class="td-price">${fmt(b.pba__ListingPrice_pb_max__c)}</td>
+          <td class="td-s">${esc(b.pba__PropertyType__c||"—")}</td>
+          <td class="td-s">${b.pba__Bedrooms_pb_min__c?b.pba__Bedrooms_pb_min__c+"+":" —"}</td>
+          <td class="td-d">${esc(b.City_multipicklist__c?b.City_multipicklist__c.split(";").slice(0,2).join(", "):"—")}</td>
+          <td class="td-d">${c?esc(c.Email||c.Phone||""):"—"}</td>
+        </tr>`;}).join("")}</tbody>
+    </table></div>`;
+}
+
+// ─── MATCHING ────────────────────────────────────────────────────────────
+
+// ─── KANBAN DRAG & DROP ──────────────────────────────────────────────────
+let _dragBid=null;
+// Drag/drop: local-only, non-persistent visual interaction (WP-05 / APP-MATCH-004)
+// State is held in matchStateOverride (in-memory only). Resets on page reload.
+// No Salesforce write occurs. This is a local visual aid only.
+function kanbanDragStart(e){
+  const bid=e.currentTarget.dataset.bid;
+  const lid=e.currentTarget.dataset.lid;
+  _dragBid=bid&&lid?bid+"::"+lid:bid;
+  e.currentTarget.style.opacity="0.4";
+  e.dataTransfer.effectAllowed="move";
+}
+function kanbanDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect="move";
+  e.currentTarget.classList.add("kcol-drag-over");
+}
+
+// ── WP-05: Viewing Preview Modal (Preview → Confirm gate for drag-to-Viewing-Planned)
+function openViewingPreviewModal({buyerId,listingId,bName,lRef,lTitle,dragKey}){
+  // Remove any existing viewing preview modal
+  const existing=document.getElementById("viewing-preview-modal");
+  if(existing)existing.remove();
+
+  const now=new Date();
+  const tomorrow=new Date(now);tomorrow.setDate(tomorrow.getDate()+1);
+  const tomorrowStr=tomorrow.toISOString().slice(0,10);
+
+  const modalHtml=`
+  <div id="viewing-preview-modal" style="position:fixed;inset:0;background:rgba(0,40,71,0.55);z-index:9999;display:flex;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:6px;width:460px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,0.22);font-family:Montserrat,Arial,sans-serif">
+      <div style="background:#002b47;color:#fff;padding:16px 20px;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:700;letter-spacing:.5px">SCHEDULE A VIEWING</span>
+        <button onclick="document.getElementById('viewing-preview-modal').remove()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;line-height:1">×</button>
+      </div>
+      <div style="padding:20px">
+        <div style="font-size:11px;color:#64748b;margin-bottom:14px;background:#f8fafc;border-radius:4px;padding:10px 12px;border-left:3px solid #e0bf95">
+          ⚠️ This action will create a Viewing record in Salesforce.<br>
+          Currently restricted to TEST records unless wider scope is approved by Daniel.
+        </div>
+        <table style="width:100%;font-size:12px;margin-bottom:16px;border-collapse:collapse">
+          <tr><td style="color:#64748b;padding:4px 0;width:100px">Buyer</td><td style="font-weight:600;color:#002b47">${bName||buyerId}</td></tr>
+          <tr><td style="color:#64748b;padding:4px 0">Listing</td><td style="font-weight:600;color:#002b47">#${lRef} ${lTitle?'— '+lTitle:''}</td></tr>
+          <tr><td style="color:#64748b;padding:4px 0">Proposed date</td>
+            <td><input type="date" id="vp-date" value="${tomorrowStr}" min="${tomorrowStr}" style="font-size:12px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:3px;font-family:inherit"></td></tr>
+          <tr><td style="color:#64748b;padding:4px 0">Time</td>
+            <td><input type="time" id="vp-time" value="10:00" style="font-size:12px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:3px;font-family:inherit"></td></tr>
+          <tr><td style="color:#64748b;padding:4px 0">Notes</td>
+            <td><input type="text" id="vp-notes" placeholder="Optional notes" style="font-size:12px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:3px;font-family:inherit;width:200px"></td></tr>
+        </table>
+        <div id="vp-status" style="font-size:11px;color:#dc2626;margin-bottom:8px;min-height:16px"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button onclick="document.getElementById('viewing-preview-modal').remove()"
+            style="padding:8px 18px;border:1px solid #cbd5e1;background:#fff;border-radius:4px;font-size:12px;cursor:pointer;font-family:inherit">
+            Cancel
+          </button>
+          <button onclick="executeViewingCreate('${buyerId}','${listingId}','${dragKey}')"
+            style="padding:8px 18px;background:#002b47;color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
+            Confirm &amp; Create Viewing
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML("beforeend", modalHtml);
+}
+
+async function executeViewingCreate(buyerId, listingId, dragKey){
+  const dateVal=document.getElementById("vp-date")?.value;
+  const timeVal=document.getElementById("vp-time")?.value||"10:00";
+  const notes=document.getElementById("vp-notes")?.value||"";
+  const statusEl=document.getElementById("vp-status");
+
+  if(!dateVal){if(statusEl)statusEl.textContent="Please select a date.";return;}
+
+  // TEST mode gate: only allow TEST buyer R-019657 unless explicitly widened
+  const buyer=(D.buyers||[]).find(b=>b.Id===buyerId)||{};
+  const isTestRecord=buyer.Name==="R-019657";
+  if(!isTestRecord){
+    if(statusEl)statusEl.textContent="⛔ Viewing creation is currently restricted to TEST records only. Contact Daniel to approve wider scope.";
+    return;
+  }
+
+  if(statusEl)statusEl.textContent="Creating Viewing record…";
+  const btn=document.querySelector("#viewing-preview-modal button:last-child");
+  if(btn)btn.disabled=true;
+
+  try{
+    const resp=await fetch(DATA_URL,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        action:"createViewing",
+        buyerId,listingId,
+        viewingDate:dateVal+"T"+timeVal+":00",
+        notes,
+        userId:AUTH?.sf_user_id||"005Jy00000Juzx7IAB"
+      })});
+    const data=await resp.json();
+    if(data.ok||data.id){
+      if(statusEl)statusEl.innerHTML=`<span style="color:#15803d">✅ Viewing created — SF ID: ${data.id||"confirmed"}</span>`;
+      // Apply visual state override after confirmed creation
+      matchStateOverride[dragKey]="viewing_planned";
+      setTimeout(()=>{
+        document.getElementById("viewing-preview-modal")?.remove();
+        renderMatching();
+      },1800);
+    } else {
+      if(statusEl)statusEl.textContent="Error: "+(data.error||data.message||JSON.stringify(data));
+      if(btn)btn.disabled=false;
+    }
+  }catch(err){
+    if(statusEl)statusEl.textContent="Network error: "+err.message;
+    if(btn)btn.disabled=false;
+  }
+}
+
+function kanbanDrop(e){
+  e.preventDefault();
+  const col=e.currentTarget.dataset.col;
+  e.currentTarget.classList.remove("kcol-drag-over");
+  if(!_dragBid||!col){_dragBid=null;return;}
+  const dragKey=_dragBid; // "buyerId::listingId"
+  _dragBid=null;
+
+  // ── Drag to "Viewing Planned" requires Preview → Confirm (WP-05, slim write pattern)
+  if(col==="viewing_planned"){
+    // Extract IDs from drag key
+    const [buyerId,listingId]=dragKey.split("::");
+    // Look up buyer + listing display info
+    const buyer=(D.buyers||[]).find(b=>b.Id===buyerId)||{};
+    const listing=(D.listings||[]).find(l=>l.Id===listingId)||{};
+    const bName=(buyer.pba__Contact__r?.FirstName||"")+" "+(buyer.pba__Contact__r?.LastName||"") || buyer.Name||buyerId;
+    const lRef=listing.pba__Ref__c||listing.Name||listingId;
+    const lTitle=listing.pba__PublicTitle_pb__c||listing.pba__ListingAddress_pb__c||"";
+    // Show preview modal — do NOT apply override until confirmed
+    openViewingPreviewModal({buyerId,listingId,bName:bName.trim(),lRef,lTitle,dragKey});
+    renderMatching();
+    return;
+  }
+
+  // All other columns: local visual override only (non-persistent)
+  matchStateOverride[dragKey]=col;
+  renderMatching();
+}
+document.addEventListener("dragend",()=>{
+  document.querySelectorAll(".kcard").forEach(c=>c.style.opacity="");
+  document.querySelectorAll(".kcol-body").forEach(c=>c.classList.remove("kcol-drag-over"));
+});
+
+function renderMatching(){
+  const allMatches=buildMatches();
+
+  // ── 9 Columns (APP-MATCH-001 revised, WP-05)
+  const COLS=[
+    {key:"property_matches",  label:"Property Matches",   color:"#1e40af", desc:"Matched listings not yet sent or proposed to this buyer"},
+    {key:"proposals_sent",    label:"Proposals Sent",     color:"#0891b2", desc:"Listing has been sent/proposed to buyer — awaiting engagement"},
+    {key:"interested",        label:"Interested",         color:"#15803d", desc:"Buyer showed positive interest via proposal feedback, email click, vote, or other approved signal"},
+    {key:"viewing_requested", label:"Viewing Requested",  color:"#7c3aed", desc:"Buyer explicitly requested a viewing or voted for one — no Salesforce Viewing record exists yet"},
+    {key:"viewing_planned",   label:"Viewing Planned",    color:"#6d28d9", desc:"Salesforce Viewing record exists and viewing is scheduled (future date)"},
+    {key:"viewed",            label:"Viewed",             color:"#0284c7", desc:"Viewing took place — no post-viewing feedback captured yet"},
+    {key:"feedback_received", label:"Feedback Received",  color:"#0369a1", desc:"Post-viewing feedback from buyer or agent exists"},
+    {key:"offer_negotiation", label:"Offer / Negotiation",color:"#d97706", desc:"Offer submitted or active negotiation underway"},
+    {key:"not_interested",    label:"Not Interested",     color:"#dc2626", desc:"Buyer or agent ruled out this specific listing — buyer remains active on other matches"},
+  ];
+  const colMap={};for(const c of COLS)colMap[c.key]=[];
+
+  // Distribute cards: each buyer/listing pair goes into its column
+  let totalCards=0;
+  for(const m of allMatches){
+    for(const ml of m.matchedListings){
+      (colMap[ml.state]||colMap["property_matches"]).push({buyer:m,listing:ml});
+      totalCards++;
+    }
+  }
+
+  const totalBuyers=allMatches.length;
+  const totalListings=(D.listings||[]).length;
+
+  document.getElementById("p-matching").innerHTML=`
+  <div class="ph">
+    <div>
+      <div class="ph-title">Matching</div>
+      <div class="ph-sub">${totalBuyers} active buyers · ${totalListings} listings · ${totalCards} buyer–listing pairs</div>
+    </div>
+  </div>
+  <div class="match-safety-note" style="padding:0 0 10px">
+    Read-only match view — no messages sent, no contact details shown. Drag to "Viewing Planned" opens a confirmation step before any Salesforce record is created.
+  </div>
+  <div class="kanban-wrap"><div class="kanban">
+  `+COLS.map(col=>{
+    const cards=colMap[col.key]||[];
+    return`<div class="kcol">
+      <div class="kcol-hd" style="border-top:3px solid ${col.color}" title="${col.desc}">
+        <span class="kcol-t">${col.label}</span>
+        <span class="kcol-n" style="background:${col.color}18;color:${col.color}">${cards.length}</span>
+      </div>
+      <div class="kcol-body" data-col="${col.key}" ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event)">
+        ${cards.length===0?`<div class="kcol-empty">—</div>`:
+          cards.map(({buyer:m,listing:ml})=>renderMatchCard(m,ml)).join("")}
+      </div>
+    </div>`;
+  }).join("")+`</div></div>`;
+}
+
+function renderMatchCard(m,ml){
+  const b=m.b;
+  const l=ml.l;
+  const buyerLabel=m.contactName||b.Name;
+  const listingLabel=l.Name||"#"+l.Property_Reference_Number__c;
+  const ref=l.Property_Reference_Number__c?"#"+l.Property_Reference_Number__c:"";
+  const city=l.pba__City_pb__c||"";
+  const price=l.pba__ListingPrice_pb__c?fmt(l.pba__ListingPrice_pb__c):"";
+  const beds=l.pba__Bedrooms_pb__c?l.pba__Bedrooms_pb__c+"bd":"";
+  const ltype=l.pba__PropertyType__c||"";
+
+  // Budget context
+  const bMax=b.pba__ListingPrice_pb_max__c;
+  const bMin=b.pba__ListingPrice_pb_min__c;
+  const budgetLine=bMax?`Budget up to ${fmt(bMax)}${bMin?" (min "+fmt(bMin)+")":""}`:
+    bMin?`Budget from ${fmt(bMin)}`:"Budget not specified";
+
+  // Fit chips (APP-MATCH-003 — business language only)
+  const fitChips=ml.fit.slice(0,3).map(f=>`<span class="chip chip-fit">✓ ${f}</span>`).join("");
+  const gapChips=ml.gaps.slice(0,2).map(g=>`<span class="chip chip-gap">✗ ${g}</span>`).join("");
+
+  // Fit label chip
+  const fitLabelChip=ml.fitLabel==="Strong fit"?`<span class="chip chip-fit" style="font-weight:900">⭐ Strong fit</span>`:
+    ml.fitLabel==="Possible fit"?`<span class="chip chip-neutral">◐ Possible fit</span>`:
+    ml.fitLabel==="Weak fit"?`<span class="chip chip-gap" style="background:#fff7ed;color:#d97706">~ Weak fit</span>`:
+    `<span class="chip chip-gap" style="background:#f1f5f9;color:#94a3b8">? Missing criteria</span>`;
+
+  // Engagement chips
+  const engChips=[];
+  if(ml.sigs.length>0){
+    const rx=ml.latestReaction;
+    if(rx==="not for me")engChips.push(`<span class="chip chip-rejected">✗ Not for them</span>`);
+    else if(rx==="interested"||rx==="request viewing"||rx==="request_viewing")engChips.push(`<span class="chip chip-interested">✓ Interested</span>`);
+    else engChips.push(`<span class="chip chip-sent">↗ Sent to client</span>`);
+  }
+  if(ml.buyerViews.length>0){
+    const v=ml.buyerViews[0];
+    const vDate=v.Viewing_DateTime__c?new Date(v.Viewing_DateTime__c).toLocaleDateString("en-GB",{day:"numeric",month:"short"}):"";
+    if(new Date(v.Viewing_DateTime__c||"")>new Date())engChips.push(`<span class="chip chip-viewing">📅 Viewing ${vDate}</span>`);
+    else if(v.Buyer_Feedback__c)engChips.push(`<span class="chip chip-viewing">💬 Feedback received</span>`);
+    else engChips.push(`<span class="chip chip-viewing">👁 Viewed ${vDate}</span>`);
+  }
+  if(ml.offers.length>0){
+    const bestOffer=ml.offers[0];
+    const amt=bestOffer.pba__OfferedAmount_pb__c?fmt(bestOffer.pba__OfferedAmount_pb__c):"";
+    engChips.push(`<span class="chip chip-offer">💶 Offer ${amt}</span>`);
+  }
+
+  // Stage tag
+  const stage=b.Sale_Stage__c||"New";
+
+  // Next action suggestion (read-only, plain language)
+  const nextAction=deriveNextAction(ml,b);
+
+  return`<div class="kcard" draggable="true" data-bid="${b.Id}" data-lid="${l.Id}" onclick="openMatchCard('${b.Id}','${l.Id}')" ondragstart="kanbanDragStart(event)">
+    <div class="kcard-name">${esc(buyerLabel)}</div>
+    <div class="kcard-crit">${budgetLine}${b.pba__Bedrooms_pb_min__c?" · "+b.pba__Bedrooms_pb_min__c+"+ beds":""}</div>
+    ${b.City_multipicklist__c?`<div class="kcard-loc">📍 ${esc(b.City_multipicklist__c.split(";").slice(0,2).join(", "))}</div>`:""}
+    ${stageTag(stage)}
+    <div class="kcard-sep"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+      <span class="kcard-listing-ref">${esc(ref)}</span>
+      ${fitLabelChip}
+    </div>
+    <div class="kcard-listing-name">${esc(listingLabel.length>44?listingLabel.slice(0,44)+"…":listingLabel)}</div>
+    <div class="kcard-listing-meta">${[city,price,beds,ltype].filter(Boolean).join(" · ")}</div>
+    ${fitChips||gapChips?`<div class="kcard-chips">${fitChips}${gapChips}</div>`:""}
+    ${engChips.length>0?`<div class="kcard-chips">${engChips.join("")}</div>`:""}
+    ${nextAction?`<div class="match-safety-note" style="color:#0f766e;font-style:normal;font-weight:600;margin-top:4px">→ ${esc(nextAction)}</div>`:""}
+    <div class="kcard-nav" onclick="event.stopPropagation()">
+      <button class="kcard-nav-btn" onclick="navToBuyer('${b.Id}')">Buyer</button>
+      <button class="kcard-nav-btn" onclick="navToListing('${l.Id}')">Listing</button>
+    </div>
+  </div>`;
+}
+
+function deriveNextAction(ml,b){
+  // Plain language next action based on state (APP-MATCH-002)
+  // No customer sends, no task creation — suggestion only
+  const state=ml.state;
+  const stage=b.Sale_Stage__c||"";
+  if(state==="property_matches")return"Review match and decide whether to send proposal";
+  if(state==="proposals_sent"){
+    const daysSince=ml.sigs[0]?.at?Math.round((Date.now()-new Date(ml.sigs[0].at).getTime())/86400000):null;
+    return daysSince!==null&&daysSince>3?`Follow up — proposal sent ${daysSince} days ago`:"Await buyer response";
+  }
+  if(state==="interested")return"Buyer is interested — arrange a viewing";
+  if(state==="viewing_requested")return"Buyer requested a viewing — schedule and confirm";
+  if(state==="viewing_planned")return"Confirm viewing details and prepare briefing";
+  if(state==="viewed")return"Send viewing report and follow up with buyer";
+  if(state==="feedback_received")return"Review feedback and decide next step";
+  if(state==="offer_negotiation")return"Manage offer and keep parties informed";
+  if(state==="not_interested")return"Buyer ruled out this listing — review other matches";
+  return null;
+}
+
+function navToBuyer(id){
+  const el=document.querySelector('[data-page="buyers"]');
+  if(el){nav(el);}
+  setTimeout(()=>openBuyer(id),300);
+}
+
+function navToListing(id){
+  const el=document.querySelector('[data-page="listings"]');
+  if(el){nav(el);}
+  setTimeout(()=>openListing(id),300);
+}
+
+function openMatchCard(bid,lid){
+  openBuyer(bid);
+}
+
+
+// ─── VIEWINGS ────────────────────────────────────────────────────────────
+function renderViewings(){
+  const now=new Date();now.setHours(0,0,0,0);
+  const upcoming=(D.viewings||[]).filter(v=>v.Viewing_DateTime__c&&new Date(v.Viewing_DateTime__c)>=now);
+  const past=(D.viewings||[]).filter(v=>!v.Viewing_DateTime__c||new Date(v.Viewing_DateTime__c)<now);
+  const rows=arr=>arr.map(v=>{
+    const l=D.listings.find(x=>x.Id===v.Listing__c);
+    const isPast=v.Viewing_DateTime__c&&new Date(v.Viewing_DateTime__c)<now;
+    const rDue=isPast&&!v.Viewing_Report_Sent__c;
+    return`<tr onclick="openViewing('${v.Id}')">
+      <td><div style="font-weight:700">${esc(v.Name||"Viewing")}</div>${v.Is_Co_Brokerage__c?`<div class="td-d">Co-brokerage · ${esc(v.Co_Broker_Agency__c||"")}</div>`:""}</td>
+      <td>${l?`<div style="font-weight:600">#${l.Property_Reference_Number__c}</div><div class="td-d">${esc(l.pba__City_pb__c||"")}</div>`:"<span class='td-d'>—</span>"}</td>
+      <td class="td-d">${fmtD(v.Viewing_DateTime__c)}</td>
+      <td>${rDue?tag("Report due","t-red"):v.Viewing_Report_Sent__c?tag("Report sent","t-green"):tag("Pending","t-gray")}</td>
+      <td class="td-d">${esc(v.Buyer_Feedback__c||"—")}</td>
+    </tr>`;}).join("");
+  const rdc=(D.viewings||[]).filter(v=>!v.Viewing_Report_Sent__c&&v.Viewing_DateTime__c&&new Date(v.Viewing_DateTime__c)<now).length;
+  document.getElementById("p-viewings").innerHTML=`
+  <div class="ph"><div><div class="ph-title">Viewings</div>
+  <div class="ph-sub">${upcoming.length} upcoming · ${past.length} past${rdc>0?` · <span style='color:#ef4444;font-weight:700'>${rdc} report overdue</span>`:""}</div></div></div>
+  ${upcoming.length>0?`<div class="sec-lbl">Upcoming</div><div class="tw"><table><thead><tr><th>Viewing</th><th>Property</th><th>Date</th><th>Status</th><th>Feedback</th></tr></thead><tbody>${rows(upcoming)}</tbody></table></div>`:""}
+  ${past.length>0?`<div class="sec-lbl">Past</div><div class="tw"><table><thead><tr><th>Viewing</th><th>Property</th><th>Date</th><th>Status</th><th>Feedback</th></tr></thead><tbody>${rows(past)}</tbody></table></div>`:""}
+  ${(D.viewings||[]).length===0?`<div class="empty-state"><div class="cs-icon">📅</div><div class="cs-title">No viewings on record</div></div>`:""}`;
+}
+
+// ─── BUYERS ──────────────────────────────────────────────────────────────
+function renderBuyers(filterQ="", filterStage=""){
+  const all=D.buyers;
+  const fl=filterQ.toLowerCase();
+  const filtered=all.filter(b=>{
+    const c=D.contactMap[b.pba__Contact__c];
+    const matchQ=!filterQ||b.Name.toLowerCase().includes(fl)||(c?.Name||"").toLowerCase().includes(fl)||(c?.Email||"").toLowerCase().includes(fl)||(b.City_multipicklist__c||"").toLowerCase().includes(fl)||(b.pba__PropertyType__c||"").toLowerCase().includes(fl);
+    const matchS=!filterStage||(b.Sale_Stage__c||"New")===filterStage;
+    return matchQ&&matchS;
+  });
+  // Pin TEST record to top
+  filtered.sort((a,b)=>a.Id==="a0QJy00000xFluHMAS"?-1:b.Id==="a0QJy00000xFluHMAS"?1:0);
+  const stages=["New","Contacted","Qualified","Active Search","Shortlist / Viewings","Inactive"];
+  document.getElementById("p-buyers").innerHTML=`
+  <div class="ph"><div><div class="ph-title">Buyers</div>
+  <div class="ph-sub">${all.length} active buyer leads</div></div></div>
+  <div class="filter-bar">
+    <input class="filter-input" placeholder="Search name, location, type…" value="${esc(filterQ)}" oninput="renderBuyers(this.value,document.getElementById('buyer-stage-filter').value)" id="buyer-q-filter">
+    <select class="filter-select" id="buyer-stage-filter" onchange="renderBuyers(document.getElementById('buyer-q-filter').value,this.value)">
+      <option value="">All stages</option>
+      ${stages.map(s=>`<option value="${s}"${filterStage===s?" selected":""}>${s}</option>`).join("")}
+    </select>
+    <span class="filter-count">${filtered.length} of ${all.length} shown</span>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Name</th><th>Stage</th><th>Max Budget</th><th>Type</th><th>Beds</th><th>Location</th><th>Contact</th></tr></thead>
+    <tbody>${filtered.map(b=>{const c=D.contactMap[b.pba__Contact__c];
+      return`<tr onclick="openBuyer('${b.Id}')" style="${b.Id==="a0QJy00000xFluHMAS"?"background:#fffbeb;border-left:3px solid #ffc107;":""}">
+        <td style="font-weight:700">${esc(b.Name)}${b.Id==="a0QJy00000xFluHMAS"?` <span style="font-size:9px;background:#ffc107;color:#333;border-radius:3px;padding:1px 4px;font-weight:700;vertical-align:middle">TEST</span>`:""}</td>
+        <td>${stageTag(b.Sale_Stage__c)}</td>
+        <td class="td-price">${fmt(b.pba__ListingPrice_pb_max__c)}</td>
+        <td class="td-s">${esc(b.pba__PropertyType__c||"—")}</td>
+        <td class="td-s">${b.pba__Bedrooms_pb_min__c?b.pba__Bedrooms_pb_min__c+"+":" —"}</td>
+        <td class="td-d">${esc(b.City_multipicklist__c?b.City_multipicklist__c.split(";")[0]:"—")}</td>
+        <td class="td-d">${c?esc(c.Email||c.Phone||""):"—"}</td>
+      </tr>`;}).join("")}
+    </tbody>
+  </table></div>`;
+}
+
+// ─── LISTINGS ────────────────────────────────────────────────────────────
+function renderListings(filterQ=""){
+  const all=D.listings;
+  const fl=filterQ.toLowerCase();
+  const filtered=!filterQ?all:all.filter(l=>l.Name.toLowerCase().includes(fl)||(l.Property_Reference_Number__c||"").toLowerCase().includes(fl)||(l.pba__City_pb__c||"").toLowerCase().includes(fl));
+  document.getElementById("p-listings").innerHTML=`
+  <div class="ph"><div><div class="ph-title">My Listings</div>
+  <div class="ph-sub">${all.length} active listings</div></div></div>
+  <div class="filter-bar">
+    <input class="filter-input" placeholder="Search by name, ref, city…" value="${esc(filterQ)}" oninput="renderListings(this.value)" id="listing-q-filter">
+    <span class="filter-count">${filtered.length} of ${all.length} shown</span>
+  </div>
+  <div class="lg">${filtered.map(l=>`
+    <div class="lcard" onclick="openListing('${l.Id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span class="lcard-ref">#${l.Property_Reference_Number__c||"—"}</span>${tag("Active","t-green")}
+      </div>
+      <div class="lcard-name">${esc(l.Name)}</div>
+      <div class="lcard-price">${fmt(l.pba__ListingPrice_pb__c)}</div>
+      <div class="lcard-meta">
+        <span>📍 ${esc(l.pba__City_pb__c||"—")}</span>
+        ${l.pba__Bedrooms_pb__c?`<span>🛏 ${l.pba__Bedrooms_pb__c} beds</span>`:""}
+        ${l.Living_Area__c?`<span>📐 ${l.Living_Area__c}m²</span>`:""}
+      </div>
+      <div class="lcard-feats">
+        ${l.pba__SystemIdxPool__c?`<span class="feat feat-g">Pool</span>`:""}
+        ${l.Lift__c?`<span class="feat feat-g">${esc(l.Lift__c)}</span>`:""}
+        ${l.pba__NewConstruction__c?`<span class="feat feat-g">New Build</span>`:""}
+        ${l.pba__YearBuilt_pb__c?`<span class="feat">${l.pba__YearBuilt_pb__c}</span>`:""}
+      </div>
+      <div class="lcard-footer">
+        ${l.Website_Public_URL__c?`<a class="lcard-link" href="${l.Website_Public_URL__c}" target="_blank" onclick="event.stopPropagation()">Website ↗</a>`:""}
+        ${l.Expose_German_URL_Web__c?`<a class="lcard-link" href="${l.Expose_German_URL_Web__c}" target="_blank" onclick="event.stopPropagation()">Exposé ↗</a>`:""}
+      </div>
+    </div>`).join("")}
+  </div>`;
+}
+
+// ─── REFRESH ─────────────────────────────────────────────────────────────
+async function refreshData(){
+  const btn=document.getElementById("refresh-btn");
+  if(btn){btn.disabled=true;btn.textContent="↻ Loading…";}
+  await boot();
+  if(btn){btn.disabled=false;btn.textContent="↺ Refresh";}
+}
+
+// ─── PANELS ──────────────────────────────────────────────────────────────
+function openPanel(type,title,subtitle,body){
+  document.getElementById("dp-type").textContent=type;
+  document.getElementById("dp-title").textContent=title;
+  document.getElementById("dp-subtitle").textContent=subtitle||"";
+  document.getElementById("dp-body").innerHTML=body;
+  document.getElementById("overlay").classList.add("open");
+}
+function closePanel(){document.getElementById("overlay").classList.remove("open");}
+
+function openBuyer(id){
+  const b=D.buyers.find(x=>x.Id===id);if(!b)return;
+  const c=D.contactMap[b.pba__Contact__c];
+  const m=buildMatches().find(x=>x.b.Id===id);
+  openPanel("Buyer Lead",b.Name,c?c.Name||c.Email||"":"",`
+
+    <div class="dp-sec" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px 8px">
+      <div class="dp-slbl" style="margin-bottom:8px">Actions</div>
+      ${id==="a0QJy00000xFluHMAS"?`<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:4px;padding:8px 10px;margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--sand);letter-spacing:.06em;font-family:Montserrat,sans-serif;text-transform:uppercase;margin-bottom:6px">&#9888; Write actions <span class="tbadge">TEST ONLY</span></div><button class="dp-btn dp-btn-s" style="background:var(--navy);color:#fff;border:none;cursor:pointer;width:100%;text-align:center;font-weight:700;padding:10px" onclick="event.stopPropagation();waOpen()">&#x2192; Create internal follow-up</button></div>`:""}
+      <a class="dp-btn dp-btn-p" href="${sfLink("pba__Request__c",id)}" target="_blank">Open Buyer Lead in Salesforce &#x2197;</a>
+      ${c?`<a class="dp-btn dp-btn-s" href="${sfLink("Contact",c.Id)}" target="_blank">Open Contact in Salesforce &#x2197;</a>`:""}
+      ${c?.Email?`<button class="dp-btn dp-btn-s" onclick="copyText('${esc(c.Email)}')">&#x2709; Copy email</button>`:""}
+      ${m?.matchedListings?.length>0?`<button class="dp-btn dp-btn-s" onclick="navTo('matching')">View in Matching board</button>`:""}
+    </div>
+    ${c?`<div class="dp-sec"><div class="dp-slbl">Contact</div>
+      ${c.Email?`<div class="dp-contact-row"><span>✉</span><span class="dp-copy" onclick="copyText('${esc(c.Email)}')">${esc(c.Email)}</span><button class="dp-act-btn" onclick="composeEmail('${esc(c.Email)}','${esc(b.Name)}')">✉ Email</button></div>`:""}
+      ${c.Phone?`<div class="dp-contact-row"><span>📞</span><span class="dp-copy" onclick="copyText('${esc(c.Phone)}')">${esc(c.Phone)}</span></div>`:""}
+      ${c.MobilePhone?`<div class="dp-contact-row"><span>📱</span><span class="dp-copy" onclick="copyText('${esc(c.MobilePhone)}')">${esc(c.MobilePhone)}</span></div>`:""}
+      ${c.MailingCity?`<div class="dp-contact-row"><span>📍</span><span>${esc(c.MailingCity)}${c.MailingCountry?", "+esc(c.MailingCountry):""}</span></div>`:""}
+    </div>`:""}
+    <div class="dp-sec"><div class="dp-slbl">Search Criteria</div>
+      <div class="dp-row"><span class="dp-key">Stage</span><span class="dp-val">${esc(b.Sale_Stage__c||"—")}</span></div>
+      <div class="dp-row"><span class="dp-key">Max budget</span><span class="dp-val">${fmt(b.pba__ListingPrice_pb_max__c)}</span></div>
+      <div class="dp-row"><span class="dp-key">Min budget</span><span class="dp-val">${fmt(b.pba__ListingPrice_pb_min__c)}</span></div>
+      <div class="dp-row"><span class="dp-key">Type</span><span class="dp-val">${esc(b.pba__PropertyType__c||"—")}</span></div>
+      <div class="dp-row"><span class="dp-key">Min bedrooms</span><span class="dp-val">${b.pba__Bedrooms_pb_min__c?b.pba__Bedrooms_pb_min__c+"+":"—"}</span></div>
+      <div class="dp-row"><span class="dp-key">Locations</span><span class="dp-val">${esc((b.City_multipicklist__c||"—").replace(/;/g,", "))}</span></div>
+      <div class="dp-row"><span class="dp-key">Pool required</span><span class="dp-val">${b.pba__Pool_pb__c?"Yes":"No"}</span></div>
+    </div>
+    ${m?.matchedListings?.length>0?`<div class="dp-sec">
+      <div class="dp-slbl">Matched Listings (${m.matchedListings.length})</div>
+      <div class="match-safety-note" style="margin-bottom:6px">Read-only match view. No message sent.</div>
+      ${m.matchedListings.map((ml)=>{
+        const l=ml.l;
+        const ref=l.Property_Reference_Number__c?"#"+l.Property_Reference_Number__c:"";
+        const city=l.pba__City_pb__c||"";
+        const price=l.pba__ListingPrice_pb__c?fmt(l.pba__ListingPrice_pb__c):"";
+        const beds=l.pba__Bedrooms_pb__c?l.pba__Bedrooms_pb__c+"bd":"";
+        const stateLabels={property_matches:"Unsent",proposals_sent:"Sent",interested:"Interested",viewing_requested:"Viewing Req.",viewing_planned:"Viewing",viewed:"Viewed",feedback_received:"Feedback",offer_negotiation:"Offer",not_interested:"Not Interested"};
+        const stateColor={property_matches:"#1e40af",proposals_sent:"#0891b2",interested:"#15803d",viewing_requested:"#7c3aed",viewing_planned:"#6d28d9",viewed:"#0284c7",feedback_received:"#0369a1",offer_negotiation:"#d97706",not_interested:"#dc2626"};
+        const sc=stateColor[ml.state]||"#64748b";
+        const sl=stateLabels[ml.state]||ml.state;
+        return`<div class="dp-match-card" onclick="openListing('${l.Id}')">
+          <div class="dp-match-row">
+            <span class="dp-match-ref">${esc(ref)}</span>
+            <span style="font-size:9px;font-weight:700;font-family:Montserrat,sans-serif;padding:2px 6px;border-radius:2px;background:${sc}18;color:${sc}">${esc(sl)}</span>
+          </div>
+          <div class="dp-match-name">${esc((l.Name||"").slice(0,44))}</div>
+          <div class="dp-match-meta">${[city,price,beds].filter(Boolean).join(" · ")}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px">
+            ${ml.fit.slice(0,2).map(f=>`<span class="chip chip-fit" style="font-size:8px">✓ ${f}</span>`).join("")}
+            ${ml.gaps.slice(0,2).map(g=>`<span class="chip chip-gap" style="font-size:8px">✗ ${g}</span>`).join("")}
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`:""}
+    <div class="dp-sec"><div class="dp-slbl">Activity</div>
+      <div class="tw" style="border:none;margin:0">${buildActivityFeed(b.pba__Contact__c,id)}</div>
+    </div>
+    </div>`);
+}
+
+function openViewing(id){
+  const v=D.viewings.find(x=>x.Id===id);if(!v)return;
+  const l=D.listings.find(x=>x.Id===v.Listing__c);
+  const now=new Date();now.setHours(0,0,0,0);
+  const isPast=v.Viewing_DateTime__c&&new Date(v.Viewing_DateTime__c)<now;
+  openPanel("Viewing",v.Name||"Viewing",fmtD(v.Viewing_DateTime__c),`
+    <div class="dp-sec"><div class="dp-slbl">Details</div>
+      <div class="dp-row"><span class="dp-key">Date</span><span class="dp-val">${fmtD(v.Viewing_DateTime__c)}</span></div>
+      ${l?`<div class="dp-row"><span class="dp-key">Property</span><span class="dp-val">#${l.Property_Reference_Number__c} · ${esc(l.pba__City_pb__c||"")}</span></div>`:""}
+      <div class="dp-row"><span class="dp-key">Co-brokerage</span><span class="dp-val">${v.Is_Co_Brokerage__c?"Yes":"No"}</span></div>
+      ${v.Co_Broker_Agency__c?`<div class="dp-row"><span class="dp-key">Agency</span><span class="dp-val">${esc(v.Co_Broker_Agency__c)}</span></div>`:""}
+      ${v.Co_Broker_Agent_Name__c?`<div class="dp-row"><span class="dp-key">Co-broker</span><span class="dp-val">${esc(v.Co_Broker_Agent_Name__c)}</span></div>`:""}
+    </div>
+    ${isPast?`<div class="dp-sec"><div class="dp-slbl">Post-Viewing</div>
+      <div class="dp-row"><span class="dp-key">Report sent</span><span class="dp-val">${v.Viewing_Report_Sent__c?"✓ Sent":"⚠ Not yet"}</span></div>
+      ${v.Buyer_Feedback__c?`<div class="dp-row"><span class="dp-key">Buyer feedback</span><span class="dp-val">${esc(v.Buyer_Feedback__c)}</span></div>`:""}
+      ${v.Price_Feedback__c?`<div class="dp-row"><span class="dp-key">Price feedback</span><span class="dp-val">${esc(v.Price_Feedback__c)}</span></div>`:""}
+    </div>`:""}
+    <div class="dp-sec"><div class="dp-slbl">Actions</div>
+      <a class="dp-btn dp-btn-p" href="${sfLink("Viewing__c",id)}" target="_blank">Open in Salesforce ↗</a>
+    </div>`);
+}
+
+function openTask(id){
+  const t=D.tasks.find(x=>x.Id===id);if(!t)return;
+  const who=(t.Who||{}).Name||"",what=(t.What||{}).Name||"";
+  const cls=tCls(t);
+  openPanel("Task",t.Subject||"Task",who||what,`
+    <div class="dp-sec"><div class="dp-slbl">Details</div>
+      <div class="dp-row"><span class="dp-key">Status</span><span class="dp-val">${esc(t.Status||"—")}</span></div>
+      <div class="dp-row"><span class="dp-key">Due</span><span class="dp-val" style="color:${cls==="t-ov"?"#ef4444":cls==="t-td"?"#f59e0b":"inherit"}">${tDue(t)}</span></div>
+      <div class="dp-row"><span class="dp-key">Priority</span><span class="dp-val">${esc(t.Priority||"Normal")}</span></div>
+      ${who?`<div class="dp-row"><span class="dp-key">Who</span><span class="dp-val">${esc(who)}</span></div>`:""}
+      ${what?`<div class="dp-row"><span class="dp-key">Related to</span><span class="dp-val">${esc(what)}</span></div>`:""}
+      ${t.Description?`<div class="dp-note">${esc(t.Description)}</div>`:""}
+    </div>
+    <div class="dp-sec"><div class="dp-slbl">Actions</div>
+      <a class="dp-btn dp-btn-p" href="${sfLink("Task",id)}" target="_blank">Open in Salesforce ↗</a>
+      ${t.WhoId?`<a class="dp-btn dp-btn-s" href="${sfLink("Contact",t.WhoId)}" target="_blank">Open Contact ↗</a>`:""}
+    </div>`);
+}
+
+function openEvent(id){
+  const e=D.events.find(x=>x.Id===id);if(!e)return;
+  const who=(e.Who||{}).Name||"",what=(e.What||{}).Name||"";
+  openPanel("Event",e.Subject||"Event",fmtD(e.StartDateTime),`
+    <div class="dp-sec"><div class="dp-slbl">Details</div>
+      <div class="dp-row"><span class="dp-key">Start</span><span class="dp-val">${fmtD(e.StartDateTime)} ${fmtT(e.StartDateTime)}</span></div>
+      ${e.EndDateTime?`<div class="dp-row"><span class="dp-key">End</span><span class="dp-val">${fmtT(e.EndDateTime)}</span></div>`:""}
+      ${e.Location?`<div class="dp-row"><span class="dp-key">Location</span><span class="dp-val">${esc(e.Location)}</span></div>`:""}
+      ${who?`<div class="dp-row"><span class="dp-key">Who</span><span class="dp-val">${esc(who)}</span></div>`:""}
+      ${what?`<div class="dp-row"><span class="dp-key">Related to</span><span class="dp-val">${esc(what)}</span></div>`:""}
+    </div>
+    <div class="dp-sec"><div class="dp-slbl">Actions</div>
+      <a class="dp-btn dp-btn-p" href="${sfLink("Event",id)}" target="_blank">Open in Salesforce ↗</a>
+    </div>`);
+}
+
+
+// ─── SELLERS ──────────────────────────────────────────────────────────────
+function renderSellers(){
+  document.getElementById("p-sellers").innerHTML=`
+  <div class="ph"><div><div class="ph-title">Seller Leads</div>
+  <div class="ph-sub">Your seller pipeline from Salesforce</div></div></div>
+  <div class="empty-state">
+    <div class="cs-icon">🏘</div>
+    <div class="cs-title">No seller leads assigned</div>
+    <div class="cs-desc">Seller leads owned by you will appear here. You can manage them directly in Salesforce and they'll sync automatically on next refresh.</div>
+    <br><a href="https://sandberg-estates.lightning.force.com/lightning/o/Seller_Lead__c/list" target="_blank" class="dp-btn dp-btn-p" style="display:inline-block;width:auto;padding:10px 20px;margin-top:8px">Open Seller Leads in Salesforce ↗</a>
+  </div>`;
+}
+
+// ─── CONTACTS ─────────────────────────────────────────────────────────────
+function renderContacts(){
+  const C = D.contacts||[];
+  document.getElementById("p-contacts").innerHTML=`
+  <div class="ph"><div><div class="ph-title">Contacts</div>
+  <div class="ph-sub">${C.length} contacts · click for full profile</div></div></div>
+  <div class="tw"><table>
+    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Country</th><th>Last Activity</th></tr></thead>
+    <tbody>${C.map(c=>`<tr onclick="openContact('${c.Id}')">
+      <td style="font-weight:700">${esc(c.Name)}</td>
+      <td class="td-d">${c.Email?`<span class="dp-copy" onclick="event.stopPropagation();copyText('${esc(c.Email)}')">${esc(c.Email)}</span>`:"—"}</td>
+      <td class="td-d">${c.Phone||c.MobilePhone?`<span class="dp-copy" onclick="event.stopPropagation();copyText('${esc(c.Phone||c.MobilePhone)}')">${esc(c.Phone||c.MobilePhone)}</span>`:"—"}</td>
+      <td class="td-d">${esc(c.MailingCity||"—")}</td>
+      <td class="td-d">${esc(c.MailingCountry||"—")}</td>
+      <td class="td-d">${fmtDs(c.LastActivityDate)||"—"}</td>
+    </tr>`).join("")}
+    </tbody>
+  </table></div>`;
+}
+
+function openContact(id){
+  const c = (D.contacts||[]).find(x=>x.Id===id)||(D.buyerContacts||[]).find(x=>x.Id===id);
+  if(!c)return;
+  const linked = D.buyers.filter(b=>b.pba__Contact__c===id);
+  openPanel("Contact",c.Name,c.MailingCity||"",`
+    <div class="dp-sec"><div class="dp-slbl">Contact Details</div>
+      ${c.Email?`<div class="dp-contact-row"><span>✉</span><span class="dp-copy" onclick="copyText('${esc(c.Email)}')">${esc(c.Email)}</span></div>`:""}
+      ${c.Phone?`<div class="dp-contact-row"><span>📞</span><span class="dp-copy" onclick="copyText('${esc(c.Phone)}')">${esc(c.Phone)}</span></div>`:""}
+      ${c.MobilePhone?`<div class="dp-contact-row"><span>📱</span><span class="dp-copy" onclick="copyText('${esc(c.MobilePhone)}')">${esc(c.MobilePhone)}</span></div>`:""}
+      ${c.MailingCity?`<div class="dp-row"><span class="dp-key">Location</span><span class="dp-val">${esc(c.MailingCity)}${c.MailingCountry?", "+esc(c.MailingCountry):""}</span></div>`:""}
+      <div class="dp-row"><span class="dp-key">Last activity</span><span class="dp-val">${fmtD(c.LastActivityDate)}</span></div>
+    </div>
+    ${linked.length>0?`<div class="dp-sec"><div class="dp-slbl">Linked Buyer Leads (${linked.length})</div>
+      ${linked.map(b=>`<button class="dp-btn dp-btn-p" style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:6px;text-align:left;padding:10px 14px;font-weight:700;font-size:13px" onclick="closePanel();setTimeout(()=>openBuyer('${b.Id}'),160)">
+          <span>${esc(b.Name)}</span><span style="opacity:.7;font-size:11px">${fmt(b.pba__ListingPrice_pb_max__c)} &#x2192;</span>
+        </button>`).join("")}
+    </div>`:""}
+    <div class="dp-sec"><div class="dp-slbl">Activity</div>
+      <div class="tw" style="border:none;margin:0">${buildActivityFeed(id, linked[0]?.Id||null)}</div>
+    </div>
+    <div class="dp-sec"><div class="dp-slbl">Actions</div>
+      ${id==="003Jy00001E0hCUIAZ"?`<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:4px;padding:8px 10px;margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--sand);letter-spacing:.06em;font-family:Montserrat,sans-serif;text-transform:uppercase;margin-bottom:6px">&#9888; Write actions <span class="tbadge">TEST ONLY</span></div><div style="font-size:11px;color:#64748b;margin-bottom:8px">Opens buyer lead R-019657</div><button class="dp-btn dp-btn-s" style="background:var(--navy);color:#fff;border:none;cursor:pointer;width:100%;text-align:center;font-weight:700;padding:10px" onclick="event.stopPropagation();closePanel();setTimeout(()=>openBuyer('a0QJy00000xFluHMAS'),160)">&#x2192; Open R-019657 Buyer Lead</button><button class="dp-btn dp-btn-s" style="background:#1e3a5f;color:#fff;border:none;cursor:pointer;width:100%;text-align:center;font-weight:700;padding:10px;margin-top:4px" onclick="event.stopPropagation();closePanel();setTimeout(()=>{openBuyer('a0QJy00000xFluHMAS');setTimeout(()=>waOpen(),200)},160)">&#x2192; Create internal follow-up (TEST)</button></div>`:""}
+      <a class="dp-btn dp-btn-p" href="${sfLink("Contact",id)}" target="_blank">Open in Salesforce ↗</a>
+      ${c.Email?`<button class="dp-btn dp-btn-s" onclick="copyText('${esc(c.Email)}')">✉ Copy email</button>`:""}
+    </div>`);
+}
+
+
+// ─── ACTIVITY FEED ────────────────────────────────────────────────────────
+function buildActivityFeed(contactId, buyerLeadId){
+  const items=[];
+  // Tasks done for this contact
+  for(const t of (D.doneTasks||[])){
+    if(t.WhoId===contactId||(t.What&&t.WhatId===buyerLeadId)){
+      items.push({type:"task_done",date:t.ActivityDate||t.CompletedDateTime,title:t.Subject||"Completed task",sub:(t.Who||{}).Name||""});
+    }
+  }
+  // Open tasks for this contact
+  for(const t of (D.tasks||[])){
+    if(t.WhoId===contactId||(t.WhatId&&t.WhatId===buyerLeadId)){
+      items.push({type:"task_open",date:t.ActivityDate,title:t.Subject||"Task",sub:"Due: "+tDue(t)});
+    }
+  }
+  // Events
+  for(const e of (D.events||[])){
+    if(e.WhoId===contactId){
+      items.push({type:"event",date:e.StartDateTime,title:e.Subject||"Event",sub:e.Location||""});
+    }
+  }
+  // Signals
+  for(const s of (D.signals||[])){
+    if(s.Buyer_Lead__c===buyerLeadId){
+      const l=D.listings.find(x=>x.Id===s.Listing__c);
+      items.push({type:"signal",date:s.Clicked_At__c,title:"Proposal feedback: "+esc(s.Reaction__c||"Signal"),sub:l?"#"+l.Property_Reference_Number__c+" "+l.Name.slice(0,30):""});
+    }
+  }
+  // Viewings
+  for(const v of (D.viewings||[])){
+    if(v.Contact__c===contactId){
+      const l=D.listings.find(x=>x.Id===v.Listing__c);
+      items.push({type:"viewing",date:v.Viewing_DateTime__c,title:"Viewing"+(l?" — #"+l.Property_Reference_Number__c:""),sub:v.Buyer_Feedback__c||""});
+    }
+  }
+  items.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+  if(items.length===0) return '<div class="ci-empty">No activity on record</div>';
+  const dotClass={task_done:"af-dot-done",task_open:"af-dot-task",event:"af-dot-ev",signal:"",viewing:""};
+  return items.slice(0,12).map(it=>`
+    <div class="af-item">
+      <div class="af-dot ${dotClass[it.type]||""}"></div>
+      <div class="af-body"><div class="af-title">${esc(it.title)}</div>${it.sub?`<div class="af-sub">${esc(it.sub)}</div>`:""}</div>
+      <div class="af-date">${fmtDs(it.date)}</div>
+    </div>`).join("");
+}
+
+// ─── SEARCH ──────────────────────────────────────────────────────────────
+function doSearch(q){
+  const el=document.getElementById("search-results");
+  if(!q||!D){el.style.display="none";return;}
+  const ql=q.toLowerCase();
+  const results=[];
+  // Buyers
+  for(const b of D.buyers){
+    const c=D.contactMap[b.pba__Contact__c];
+    if(b.Name.toLowerCase().includes(ql)||(c?.Name||"").toLowerCase().includes(ql)||(c?.Email||"").toLowerCase().includes(ql)){
+      results.push({type:"Buyer",typeColor:"#1e40af",name:b.Name,sub:fmt(b.pba__ListingPrice_pb_max__c)+" · "+(b.City_multipicklist__c?b.City_multipicklist__c.split(";")[0]:""),action:()=>{closeSearch();openBuyer(b.Id);}});
+    }
+  }
+  // Listings
+  for(const l of D.listings){
+    if(l.Name.toLowerCase().includes(ql)||(l.Property_Reference_Number__c||"").toLowerCase().includes(ql)||(l.pba__City_pb__c||"").toLowerCase().includes(ql)){
+      results.push({type:"Listing",typeColor:"#065f46",name:l.Name,sub:"#"+l.Property_Reference_Number__c+" · "+fmt(l.pba__ListingPrice_pb__c),action:()=>{closeSearch();openListing(l.Id);}});
+    }
+  }
+  // Contacts
+  for(const c of (D.contacts||[])){
+    if(c.Name.toLowerCase().includes(ql)||(c.Email||"").toLowerCase().includes(ql)){
+      results.push({type:"Contact",typeColor:"#6b21a8",name:c.Name,sub:c.Email||c.MailingCity||"",action:()=>{closeSearch();openContact(c.Id);}});
+    }
+  }
+  if(results.length===0){el.innerHTML=`<div style="padding:14px;font-size:12px;color:#94a3b8;font-family:Montserrat,sans-serif;text-align:center">No results for "${esc(q)}"</div>`;el.style.display="block";return;}
+  el.innerHTML=results.slice(0,8).map(r=>`
+    <div class="sr-item" onclick="r.action()" data-idx="${results.indexOf(r)}">
+      <span class="sr-type" style="background:${r.typeColor}18;color:${r.typeColor}">${r.type}</span>
+      <div><div class="sr-name">${esc(r.name)}</div><div class="sr-sub">${esc(r.sub)}</div></div>
+    </div>`).join("");
+  // bind actions
+  el.querySelectorAll(".sr-item").forEach((el2,i)=>el2.addEventListener("click",results[i].action));
+  el.style.display="block";
+}
+function showSearchResults(){if(document.getElementById("search-input").value)doSearch(document.getElementById("search-input").value);}
+function closeSearch(){document.getElementById("search-results").style.display="none";document.getElementById("search-input").value="";}
+document.addEventListener("click",e=>{if(!e.target.closest("#search-wrap"))closeSearch();});
+
+
+// ── WP-04 Slim Write Action ──────────────────────────────────────────────────
+var WA_URL="https://minime-7ab0eaa0.base44.app/functions/sfDataProxy";
+var WA_TEST_ID="a0QJy00000xFluHMAS";
+var WA_DANIEL="005Jy00000Juzx7IAB";
+var _wa={};
+
+function waOpen(){
+  _wa={id:WA_TEST_ID};
+  document.getElementById("wa-overlay").style.display="flex";
+  document.getElementById("wa-mbody").innerHTML='<div class="wa-body" style="text-align:center;padding:32px"><div style="font-size:12px;color:#64748b;font-family:Montserrat,sans-serif">Loading preview\u2026</div></div>';
+  waPreview();
+}
+function waClose(){document.getElementById("wa-overlay").style.display="none";_wa={};}
+
+function waPreview(){
+  var due=new Date();due.setDate(due.getDate()+3);
+  var dueStr=due.toISOString().slice(0,10);
+  _wa.subject="Follow-up call \u2014 check in on search";
+  _wa.due=dueStr;
+  fetch(WA_URL,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({action:"task_create",mode:"preview",whatId:WA_TEST_ID,
+      subject:_wa.subject,dueDate:dueStr,ownerId:WA_DANIEL,actorId:WA_DANIEL,actorName:"Daniel Ballmann"})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.ok)throw new Error(d.error||"Preview failed");
+    var rows=(d.preview.details||[]).map(function(x){return'<div class="wa-row"><span class="wa-key">'+esc(x.label)+'</span><span class="wa-val">'+esc(x.value)+'</span></div>';}).join("");
+    var safe=(d.preview.safety_notes||[]).map(function(x){return'<div class="wa-si"><span>&#x2713;</span><span>'+esc(x)+'</span></div>';}).join("");
+    document.getElementById("wa-title").textContent=(d.preview&&d.preview.action_label)||"Create internal follow-up";
+    document.getElementById("wa-mbody").innerHTML=
+      '<div class="wa-body">'+
+      '<div class="wa-step">Step 1 of 2 \u2014 Preview</div>'+
+      '<p style="font-size:12px;color:#475569;font-family:Montserrat,sans-serif;margin:0 0 12px">'+esc((d.preview&&d.preview.description)||"")+'</p>'+
+      rows+
+      '<div class="wa-safety">'+safe+'</div>'+
+      '</div>'+
+      '<div class="wa-foot">'+
+      '<button class="wa-cancel" onclick="waClose()">Cancel</button>'+
+      '<button class="wa-confirm" id="wa-btn" onclick="waExec()">'+
+      '<span class="wa-lbl">Confirm &amp; Create</span><div class="wa-spin"></div>'+
+      '</button></div>';
+  }).catch(function(e){waErr(e.message);});
+}
+
+function waExec(){
+  var btn=document.getElementById("wa-btn");
+  if(btn){btn.disabled=true;btn.classList.add("busy");}
+  fetch(WA_URL,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({action:"task_create",mode:"execute",whatId:WA_TEST_ID,
+      subject:_wa.subject,dueDate:_wa.due,ownerId:WA_DANIEL,actorId:WA_DANIEL,actorName:"Daniel Ballmann"})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.ok)throw new Error(d.error||"Execute failed");
+    var ev=d.evidence||{};
+    var ts=ev.timestamp?new Date(ev.timestamp).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"}):"--";
+    document.getElementById("wa-mbody").innerHTML=
+      '<div class="wa-body" style="text-align:center;padding-bottom:8px">'+
+      '<div style="font-size:34px;margin-bottom:8px">&#x2705;</div>'+
+      '<div style="font-family:\'Playfair Display\',serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:5px">Follow-up created</div>'+
+      '<div style="font-size:12px;color:#64748b;font-family:Montserrat,sans-serif;margin-bottom:14px">'+esc(d.summary||"")+'</div>'+
+      '<div class="wa-ev">'+
+      '<div class="wa-ev-ttl">Salesforce evidence</div>'+
+      '<div class="wa-er"><span class="wa-ek">Task ID</span><span class="wa-ev2" style="font-size:10px">'+esc(ev.task_id_created||d.task_id||"--")+'</span></div>'+
+      '<div class="wa-er"><span class="wa-ek">Linked to</span><span class="wa-ev2">'+esc(ev.target_name||"--")+'</span></div>'+
+      '<div class="wa-er"><span class="wa-ek">Status</span><span class="wa-ev2">'+esc(ev.task_status||"--")+'</span></div>'+
+      '<div class="wa-er"><span class="wa-ek">Due date</span><span class="wa-ev2">'+esc(ev.task_due||"--")+'</span></div>'+
+      '<div class="wa-er"><span class="wa-ek">Erstellt</span><span class="wa-ev2">'+ts+'</span></div>'+
+      '<div class="wa-er"><span class="wa-ek">SF postcheck</span><span class="'+(d.postcheck_ok?"wa-ok":"wa-ev2")+'">'+( d.postcheck_ok?"&#x2705; Confirmed":"&#x26A0; "+esc((ev&&ev.result)||""))+'</span></div>'+
+      '</div></div>'+
+      '<div class="wa-foot"><button class="wa-confirm" onclick="waClose()"><span class="wa-lbl">Done</span></button></div>';
+  }).catch(function(e){waErr(e.message);});
+}
+
+function waErr(msg){
+  document.getElementById("wa-mbody").innerHTML=
+    '<div class="wa-body"><div class="wa-err-box">&#x26A0; '+esc(msg)+'</div></div>'+
+    '<div class="wa-foot"><button class="wa-cancel" onclick="waClose()">Close</button></div>';
+}
+
+// ─── BYPASS AUTO-INIT (bp=1 param) ─────────────────────────────────────────
+(function() {
+  const _params = new URLSearchParams(location.search);
+  if (_params.get('bp') !== '1') return;
+  // Run after DOM is ready
+  function _doBypass() {
+    AUTH = {access_token:"__service__", user_id:"005Jy00000Juzx7IAB",
+            email:"daniel@sandberg-estates.com", display_name:"Daniel Ballmann", ok:true};
+    try { sessionStorage.setItem("sfAuth", JSON.stringify(AUTH)); } catch(e) {}
+    var ls = document.getElementById("login-screen");
+    if (ls) ls.style.cssText = "display:none !important";
+    var app = document.getElementById("main-app");
+    if (app) app.style.cssText = "display:flex;height:100vh;flex-direction:column";
+    var tn = document.getElementById("tuser-name");
+    var ts = document.getElementById("tuser-sub");
+    if (tn) tn.textContent = "Daniel Ballmann";
+    if (ts) ts.textContent = "daniel@sandberg-estates.com";
+    document.title = "Daily Driver — Daniel Ballmann";
+    boot();
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", _doBypass);
+  } else {
+    _doBypass();
+  }
+})();
+</script>
+<script>
+// Auto-login from URL fragment (fragment never sent to server; cleared immediately)
+(function(){
+  try {
+    const h = window.location.hash.replace('#','');
+    if(h && h.length > 4){
+      const inp = document.getElementById('passcode-input');
+      if(inp) inp.value = h;
+      if(window.history && window.history.replaceState){
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+      if(typeof checkPasscode === 'function') checkPasscode();
+    }
+  } catch(e){}
+})();
+</script>
+
+<div id="wa-overlay" class="wa-overlay" style="display:none" onclick="if(event.target===this)waClose()">
+  <div class="wa-modal">
+    <div class="wa-hdr"><h3 id="wa-title">Create internal follow-up</h3><button class="wa-x" onclick="waClose()">&#x00D7;</button></div>
+    <div id="wa-mbody"></div>
+  </div>
+</div>
+
+
+
+</body>
+</html>

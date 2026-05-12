@@ -598,7 +598,7 @@ function logout() {
 }
 
 // Restore session on load
-const APP_VERSION = "v13r4";
+const APP_VERSION = "v13r5";
 document.addEventListener('DOMContentLoaded', async function() {
   // Auto-login as service account — OAuth login coming later
   // Clear any stale sessionStorage from previous OAuth/passcode sessions
@@ -1874,32 +1874,64 @@ function openBuyer(id){
       <div class="dp-row"><span class="dp-key">Locations</span><span class="dp-val">${esc((b.City_multipicklist__c||"—").replace(/;/g,", "))}</span></div>
       <div class="dp-row"><span class="dp-key">Pool required</span><span class="dp-val">${b.pba__Pool_pb__c?"Yes":"No"}</span></div>
     </div>
-    ${m?.matchedListings?.length>0?`<div class="dp-sec">
-      <div class="dp-slbl">Matched Listings (${m.matchedListings.length})</div>
-      <div class="match-safety-note" style="margin-bottom:6px">Read-only match view. No message sent.</div>
-      ${m.matchedListings.map((ml)=>{
-        const l=ml.l;
-        const ref=l.Property_Reference_Number__c?"#"+l.Property_Reference_Number__c:"";
-        const city=l.pba__City_pb__c||"";
-        const price=l.pba__ListingPrice_pb__c?fmt(l.pba__ListingPrice_pb__c):"";
-        const beds=l.pba__Bedrooms_pb__c?l.pba__Bedrooms_pb__c+"bd":"";
-        const stateLabels={property_matches:"Unsent",proposals_sent:"Sent",interested:"Interested",viewing_requested:"Viewing Req.",viewing_planned:"Viewing",viewed:"Viewed",feedback_received:"Feedback",offer_negotiation:"Offer",not_interested:"Not Interested"};
-        const stateColor={property_matches:"#1e40af",proposals_sent:"#0891b2",interested:"#15803d",viewing_requested:"#7c3aed",viewing_planned:"#6d28d9",viewed:"#0284c7",feedback_received:"#0369a1",offer_negotiation:"#d97706",not_interested:"#dc2626"};
-        const sc=stateColor[ml.state]||"#64748b";
-        const sl=stateLabels[ml.state]||ml.state;
-        return`<div class="dp-match-card" onclick="openListing('${l.Id}')">
-          <div class="dp-match-row">
-            <span class="dp-match-ref">${esc(ref)}</span>
-            <span style="font-size:9px;font-weight:700;font-family:Montserrat,sans-serif;padding:2px 6px;border-radius:2px;background:${sc}18;color:${sc}">${esc(sl)}</span>
-          </div>
-          <div class="dp-match-name">${esc((l.Name||"").slice(0,44))}</div>
-          <div class="dp-match-meta">${[city,price,beds].filter(Boolean).join(" · ")}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px">
-            ${ml.fit.slice(0,2).map(f=>`<span class="chip chip-fit" style="font-size:8px">✓ ${f}</span>`).join("")}
-            ${ml.gaps.slice(0,2).map(g=>`<span class="chip chip-gap" style="font-size:8px">✗ ${g}</span>`).join("")}
-          </div>
-        </div>`;
-      }).join("")}
+    ${m?.matchedListings?.length>0?`<div class="dp-sec" style="padding:0">
+      <div class="dp-slbl" style="padding:10px 12px 6px">Matching Workspace <span style="font-size:9px;font-weight:400;color:#64748b">(${m.matchedListings.length} matched listings)</span></div>
+      <div class="match-safety-note" style="margin:0 12px 8px;font-size:10px;color:#64748b">
+        Read-only · State derived from Offer records, Viewings, and proposal feedback — not from Buyer Lead stage · No message sent
+      </div>
+      ${(()=>{
+        // 9 ordered states — exact APP-MATCH-001 requirement
+        const STATE_ORDER=[
+          {key:"property_matches",  label:"Property Matches",    color:"#1e40af"},
+          {key:"proposals_sent",    label:"Proposals Sent",      color:"#0891b2"},
+          {key:"interested",        label:"Interested",          color:"#15803d"},
+          {key:"viewing_requested", label:"Viewing Requested",   color:"#7c3aed"},
+          {key:"viewing_planned",   label:"Viewing Planned",     color:"#6d28d9"},
+          {key:"viewed",            label:"Viewed",              color:"#0284c7"},
+          {key:"feedback_received", label:"Feedback Received",   color:"#0369a1"},
+          {key:"offer_negotiation", label:"Offer / Negotiation", color:"#d97706"},
+          {key:"not_interested",    label:"Not Interested",      color:"#dc2626"},
+        ];
+        // Group matches by listing-specific state (NOT buyer stage)
+        const grouped={};
+        for(const ml of m.matchedListings){
+          const s=ml.state||"property_matches";
+          if(!grouped[s])grouped[s]=[];
+          grouped[s].push(ml);
+        }
+        return STATE_ORDER
+          .filter(st=>grouped[st.key]?.length>0)
+          .map(st=>{
+            const cards=grouped[st.key];
+            return`<div style="border-top:1px solid #f1f5f9;padding:6px 12px 8px">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                <span style="width:8px;height:8px;border-radius:50%;background:${st.color};display:inline-block;flex-shrink:0"></span>
+                <span style="font-size:10px;font-weight:700;color:${st.color};text-transform:uppercase;letter-spacing:.06em;font-family:Montserrat,sans-serif">${st.label}</span>
+                <span style="font-size:9px;color:#94a3b8;background:${st.color}12;border-radius:8px;padding:0 5px">${cards.length}</span>
+              </div>
+              ${cards.map(ml=>{
+                const l=ml.l;
+                const ref=l.Property_Reference_Number__c?"#"+l.Property_Reference_Number__c:"";
+                const city=l.pba__City_pb__c||"";
+                const price=l.pba__ListingPrice_pb__c?fmt(l.pba__ListingPrice_pb__c):"";
+                const beds=l.pba__Bedrooms_pb__c?l.pba__Bedrooms_pb__c+"bd":"";
+                const stateEvidence=ml.offers?.length>0?"Offer record exists":ml.buyerViews?.length>0?"Viewing record exists":ml.sigs?.length>0?"Proposal feedback signal":"No engagement evidence";
+                return\`<div class="dp-match-card" onclick="openListing('\${l.Id}')" style="border-left:3px solid \${st.color};margin-bottom:4px;background:#fff">
+                  <div class="dp-match-row">
+                    <span class="dp-match-ref">\${esc(ref)}</span>
+                    <span style="font-size:9px;color:#94a3b8">\${esc(stateEvidence)}</span>
+                  </div>
+                  <div class="dp-match-name">\${esc((l.Name||"").slice(0,44))}</div>
+                  <div class="dp-match-meta">\${[city,price,beds].filter(Boolean).join(" · ")}</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px">
+                    \${ml.fit.slice(0,2).map(f=>\`<span class="chip chip-fit" style="font-size:8px">✓ \${f}</span>\`).join("")}
+                    \${ml.gaps.slice(0,2).map(g=>\`<span class="chip chip-gap" style="font-size:8px">✗ \${g}</span>\`).join("")}
+                  </div>
+                </div>\`;
+              }).join("")}
+            </div>`;
+          }).join("");
+      })()}
     </div>`:""}
     <div class="dp-sec"><div class="dp-slbl">Activity</div>
       <div class="tw" style="border:none;margin:0">${buildActivityFeed(b.pba__Contact__c,id)}</div>

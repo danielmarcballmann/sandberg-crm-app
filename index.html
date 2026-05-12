@@ -357,7 +357,7 @@ tr:hover td{background:#fdfaf7;cursor:pointer}
 <script>
 (function() {
   'use strict';
-  var CURRENT_VERSION = "v13r4";
+  var CURRENT_VERSION = "v13r5";
   var VERSION_URL = "/version.json";
   var RELOAD_KEY = "crm_reload_attempted_" + CURRENT_VERSION;
 
@@ -492,7 +492,7 @@ const DATA_URL  = "https://minime-7ab0eaa0.base44.app/functions/sfDataProxy";
 const RG = {
   APP_URL:      "https://crm.sandberg-estates.com",
   BACKEND_URL:  "https://minime-7ab0eaa0.base44.app/functions/sfDataProxy",
-  VERSION:      "v13r4",
+  VERSION:      "v13r5",
   BUILD_DATE:   "2026-05-12",
   MIN_BUYERS:   1,
   MIN_LISTINGS: 1,
@@ -766,7 +766,7 @@ function renderPage(id) {
 // ─── STATUS ──────────────────────────────────────────────────────────────
 function setStatus(s) {
   const dot=document.getElementById("tdot"),lbl=document.getElementById("tlbl"),pill=document.getElementById("tpill");
-  const styles={live:{bg:"#4ade80",txt:"LIVE · SF · v13r4",col:"#4ade80",pulse:true},loading:{bg:"#e0bf95",txt:"Loading…",col:"#e0bf95",pulse:false},error:{bg:"#ef4444",txt:"Error",col:"#ef4444",pulse:false}};
+  const styles={live:{bg:"#4ade80",txt:"LIVE · SF · v13r5",col:"#4ade80",pulse:true},loading:{bg:"#e0bf95",txt:"Loading…",col:"#e0bf95",pulse:false},error:{bg:"#ef4444",txt:"Error",col:"#ef4444",pulse:false}};
   const st=styles[s]||styles.error;
   dot.style.background=st.bg; lbl.textContent=st.txt; pill.style.color=st.col;
   st.pulse ? dot.classList.add("live-pulse") : dot.classList.remove("live-pulse");

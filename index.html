@@ -446,7 +446,7 @@ const DATA_URL  = "https://minime-7ab0eaa0.base44.app/functions/sfDataProxy";
 const RG = {
   APP_URL:      "https://crm.sandberg-estates.com",
   BACKEND_URL:  "https://minime-7ab0eaa0.base44.app/functions/sfDataProxy",
-  VERSION:      "v13r3",
+  VERSION:      "v13r4",
   BUILD_DATE:   "2026-05-12",
   MIN_BUYERS:   1,
   MIN_LISTINGS: 1,
@@ -824,11 +824,19 @@ async function boot() {
   try {
     const userId = AUTH ? (AUTH.sf_user_id || AUTH.sf_user_id || AUTH.user_id || "") : "";
     const email  = AUTH ? AUTH.email  : "";
-    const resp = await fetch(DATA_URL, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({action:"getOverview", user_id: userId, email: email})
-    });
+    const _bootCtrl = new AbortController();
+    const _bootTimer = setTimeout(() => _bootCtrl.abort(), 30000);
+    let resp;
+    try {
+      resp = await fetch(DATA_URL, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({action:"getOverview", user_id: userId, email: email}),
+        signal: _bootCtrl.signal
+      });
+    } finally {
+      clearTimeout(_bootTimer);
+    }
     if (!resp.ok) throw new Error("HTTP "+resp.status);
     const json = await resp.json();
     if (!json.ok) throw new Error(json.error||"Backend error");

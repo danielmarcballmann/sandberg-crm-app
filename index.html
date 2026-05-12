@@ -348,6 +348,52 @@ tr:hover td{background:#fdfaf7;cursor:pointer}
 .ldb-meta{font-size:10px;color:var(--text-mid);font-family:Montserrat,sans-serif}
 
 </style>
+
+<!-- ═══════════════════════════════════════════════
+     VERSION GUARD — fires before DOMContentLoaded
+     Detects stale browser cache and hard-reloads.
+     Do not remove.
+     ═══════════════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+  var CURRENT_VERSION = "v13r4";
+  var VERSION_URL = "/version.json";
+  var RELOAD_KEY = "crm_reload_attempted_" + CURRENT_VERSION;
+
+  // Fetch version.json with no-cache to check if this build is current
+  fetch(VERSION_URL + "?t=" + Date.now(), {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache, no-store, pragma: no-cache" }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (!d || !d.version) return;
+    if (d.version !== CURRENT_VERSION) {
+      // Stale build detected — reload once to get fresh HTML
+      if (!sessionStorage.getItem(RELOAD_KEY)) {
+        sessionStorage.setItem(RELOAD_KEY, "1");
+        console.warn("[CRM] Stale build detected: local=" + CURRENT_VERSION + " server=" + d.version + " — reloading");
+        window.location.reload(true);
+      } else {
+        // Reload already attempted — show banner so user knows
+        document.addEventListener("DOMContentLoaded", function() {
+          var banner = document.createElement("div");
+          banner.id = "stale-build-banner";
+          banner.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font-family:sans-serif;font-size:13px;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;";
+          banner.innerHTML = '<span>⚠️ You may have an outdated version of this app. Please do a hard reload: <strong>Ctrl+Shift+R</strong> (Windows) or <strong>Cmd+Shift+R</strong> (Mac).</span>'
+            + '<button onclick="window.location.reload(true)" style="margin-left:16px;background:#fff;color:#b91c1c;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:700;">Reload Now</button>';
+          document.body.prepend(banner);
+        });
+      }
+    }
+  })
+  .catch(function() {
+    // Network error on version check — non-fatal, app continues normally
+  });
+})();
+</script>
+<!-- END VERSION GUARD -->
 </head>
 <body>
 
